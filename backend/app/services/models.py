@@ -4,7 +4,7 @@ from app import models as t
 async def chat_models(rt, user):
     rows = await rt.db.rows(t.models, t.models.c.type == "chat", t.models.c.status == 1)
     result = []
-    for model in rows:
+    for model in sorted(rows, key=lambda row: (row["priority"], row["id"])):
         provider = await rt.db.get(t.providers, model["provider_id"])
         if provider and provider["status"] == 1:
             result.append(

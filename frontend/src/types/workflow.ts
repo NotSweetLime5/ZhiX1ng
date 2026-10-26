@@ -1,5 +1,5 @@
 /**
- * 工作流域类型 —— 对应 model/workflow.go 与 workflow/dsl.go。
+ * 工作流域类型 —— 对应 app/models/workflow.py 与 app/agents/workflow.py。
  */
 
 /** 工作流定义（DSL 为 YAML 文本） */

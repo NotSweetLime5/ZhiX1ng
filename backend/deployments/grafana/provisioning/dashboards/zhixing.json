@@ -1,0 +1,12 @@
+{
+  "uid": "zhixing-overview", "title": "Zhixing Python", "schemaVersion": 39,
+  "version": 1, "refresh": "10s", "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {"id": 1, "type": "stat", "title": "API available", "gridPos": {"x":0,"y":0,"w":6,"h":4}, "targets": [{"expr": "up{job=\"nexus-agent\"}", "refId": "A"}]},
+    {"id": 2, "type": "timeseries", "title": "HTTP requests / second", "gridPos": {"x":6,"y":0,"w":18,"h":8}, "targets": [{"expr": "sum by(status) (rate(zhixing_http_requests_total[5m]))", "refId": "A", "legendFormat": "{{status}}"}]},
+    {"id": 3, "type": "timeseries", "title": "Model requests", "gridPos": {"x":0,"y":8,"w":12,"h":8}, "targets": [{"expr": "sum by(model,status) (increase(llm_requests_total[5m]))", "refId": "A", "legendFormat": "{{model}} {{status}}"}]},
+    {"id": 4, "type": "timeseries", "title": "Tool requests", "gridPos": {"x":12,"y":8,"w":12,"h":8}, "targets": [{"expr": "sum by(tool,status) (increase(tool_calls_total[5m]))", "refId": "A", "legendFormat": "{{tool}} {{status}}"}]},
+    {"id": 5, "type": "timeseries", "title": "Model latency p95 (seconds)", "gridPos": {"x":0,"y":16,"w":12,"h":8}, "targets": [{"expr": "histogram_quantile(0.95, sum by(le,model) (rate(llm_latency_seconds_bucket[5m])))", "refId": "A", "legendFormat": "{{model}}"}]},
+    {"id": 6, "type": "timeseries", "title": "Tokens", "gridPos": {"x":12,"y":16,"w":12,"h":8}, "targets": [{"expr": "sum by(model,direction) (increase(llm_tokens_total[5m]))", "refId": "A", "legendFormat": "{{model}} {{direction}}"}]}
+  ]
+}

@@ -17,6 +17,7 @@ dependencies = [
   "langgraph-checkpoint-postgres>=3.0,<4",
   "langchain-text-splitters>=1.0,<2",
   "langchain-mcp-adapters>=0.2,<1",
+  "mcp>=1.30,<2",
   "pymilvus>=2.6,<3",
   "redis>=6,<8",
   "minio>=7.2,<8",

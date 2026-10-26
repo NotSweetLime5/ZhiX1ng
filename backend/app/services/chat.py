@@ -4,7 +4,7 @@ import logging
 import time
 import uuid
 
-from sqlalchemy import insert, select, text, update
+from sqlalchemy import func, insert, select, text, update
 
 from app import models as t
 from app.core.serialization import serial
@@ -132,6 +132,7 @@ async def stream(runtime, user, request, agent, session):
                             status=status,
                             prompt_tokens=output["prompt_tokens"],
                             completion_tokens=output["completion_tokens"],
+                            first_token_ms=output.get("first_token_ms", 0),
                             latency_ms=int((time.monotonic() - started) * 1000),
                             metadata={"agent_trace": output["trace"]},
                         )
@@ -201,7 +202,17 @@ async def stream(runtime, user, request, agent, session):
 
 
 async def list_sessions(rt, user, paging):
-    return await rt.db.paged(t.sessions, t.sessions.c.user_id == user["id"], **paging)
+    return await rt.db.paged(
+        t.sessions,
+        t.sessions.c.user_id == user["id"],
+        t.sessions.c.status == "active",
+        order_by=(
+            t.sessions.c.pinned.desc(),
+            func.coalesce(t.sessions.c.last_msg_at, t.sessions.c.created_at).desc(),
+            t.sessions.c.id.desc(),
+        ),
+        **paging,
+    )
 
 
 async def messages(rt, user, ident):

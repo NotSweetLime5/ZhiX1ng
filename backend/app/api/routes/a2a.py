@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Request
 
@@ -11,10 +12,20 @@ from app.services.chat import prepare, stream
 router = APIRouter(tags=["a2a"])
 
 
+async def a2a_user(request: Request, rt=Depends(runtime)):
+    if (
+        getattr(request.app.state, "a2a_legacy", False)
+        and rt.cfg.a2a_allow_anonymous
+        and not request.headers.get("Authorization")
+    ):
+        return request.app.state.a2a_user
+    return await current_user(request, rt)
+
+
 @router.get("/.well-known/agent-card.json")
 @router.get("/.well-known/agent.json")
 async def card(request: Request):
-    return {
+    result = {
         "name": APP_NAME,
         "description": "LangChain/LangGraph Agent 平台",
         "version": APP_VERSION,
@@ -27,13 +38,29 @@ async def card(request: Request):
         "security": [{"bearer": []}],
         "skills": [{"id": "chat", "name": "对话", "description": "对话与工具调用", "tags": ["chat"]}],
     }
+    if getattr(request.app.state, "a2a_legacy", False) and request.app.state.runtime.cfg.a2a_allow_anonymous:
+        result.pop("securitySchemes")
+        result.pop("security")
+    return result
 
 
 @router.post("/a2a")
-async def rpc(body: dict, user=Depends(current_user), rt=Depends(runtime)):
+async def rpc(body: dict, user=Depends(a2a_user), rt=Depends(runtime)):
     ident = body.get("id")
-    if body.get("jsonrpc") != "2.0" or body.get("method") != "message/send":
-        return {"jsonrpc": "2.0", "id": ident, "error": {"code": -32601, "message": "只支持 message/send"}}
+    if body.get("jsonrpc") != "2.0":
+        return {"jsonrpc": "2.0", "id": ident, "error": {"code": -32600, "message": "需要 JSON-RPC 2.0"}}
+    if body.get("method") == "message/ping":
+        return {
+            "jsonrpc": "2.0",
+            "id": ident,
+            "result": {"status": "alive", "time": datetime.now(UTC).isoformat()},
+        }
+    if body.get("method") != "message/send":
+        return {
+            "jsonrpc": "2.0",
+            "id": ident,
+            "error": {"code": -32601, "message": "只支持 message/send 和 message/ping"},
+        }
     parts = body.get("params", {}).get("message", {}).get("parts", [])
     content = "".join((p.get("text", "") for p in parts if p.get("kind", p.get("type")) == "text"))
     if not content.strip():
@@ -50,6 +77,17 @@ async def rpc(body: dict, user=Depends(current_user), rt=Depends(runtime)):
                 answer += data["content"]
             elif event == "error":
                 raise RuntimeError(data["message"])
+        if parts and all("type" in part and "kind" not in part for part in parts):
+            return {
+                "jsonrpc": "2.0",
+                "id": ident,
+                "result": {
+                    "id": str(uuid.uuid4()),
+                    "status": "completed",
+                    "messages": [{"role": "agent", "parts": [{"type": "text", "text": answer}]}],
+                    "artifacts": [{"name": "answer", "parts": [{"type": "text", "text": answer}]}],
+                },
+            }
         return {
             "jsonrpc": "2.0",
             "id": ident,

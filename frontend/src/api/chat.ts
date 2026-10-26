@@ -1,5 +1,5 @@
 /**
- * 对话与会话接口 —— 对应 router.go 对话分组。
+ * 对话与会话接口 —— 对应 app/api/routes/chat.py。
  */
 import { http } from '@/lib/request';
 import type { Paged, PageQuery } from '@/types/api';

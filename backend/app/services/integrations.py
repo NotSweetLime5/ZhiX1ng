@@ -25,12 +25,21 @@ async def fetch_card(url):
 
 
 async def sync_mcp(rt, user, ident):
-    return {"synced": await rt.tools.sync_mcp(await mcp_server(rt, ident))}
+    server = await mcp_server(rt, ident)
+    try:
+        return {"synced": await rt.tools.sync_mcp(server)}
+    except Exception:
+        await rt.db.change(t.mcp_servers, ident, {"status": "error", "last_health_at": t.now()})
+        raise
 
 
 async def health_mcp(rt, user, ident):
     server = await mcp_server(rt, ident)
-    await rt.tools.remote_tools(server)
+    try:
+        await rt.tools.remote_tools(server)
+    except Exception:
+        await rt.db.change(t.mcp_servers, ident, {"status": "error", "last_health_at": t.now()})
+        raise
     await rt.db.change(t.mcp_servers, ident, {"status": "connected", "last_health_at": t.now()})
     return {"status": "connected"}
 
@@ -71,12 +80,18 @@ async def health_a2a(rt, user, ident):
     agent = await rt.db.get(t.a2a_agents, ident)
     if not agent:
         raise ServiceError(404, "远程 Agent 不存在")
-    await fetch_card(agent["base_url"])
-    await rt.db.change(t.a2a_agents, ident, {"status": "connected", "last_health_at": t.now()})
+    try:
+        card = await fetch_card(agent["base_url"])
+    except Exception:
+        await rt.db.change(t.a2a_agents, ident, {"status": "error", "last_health_at": t.now()})
+        raise
+    await rt.db.change(t.a2a_agents, ident, {"card": card, "status": "connected", "last_health_at": t.now()})
     return {"status": "connected"}
 
 
 async def send_a2a(rt, user, ident, body):
+    if not body.get("text", "").strip():
+        raise ValueError("任务内容不能为空")
     agent = await rt.db.get(t.a2a_agents, ident)
     if not agent:
         raise ServiceError(404, "远程 Agent 不存在")
@@ -91,7 +106,8 @@ async def send_a2a(rt, user, ident, body):
                     "message": {
                         "messageId": str(uuid.uuid4()),
                         "role": "user",
-                        "parts": [{"kind": "text", "text": body.get("text", "")}],
+                        # The upstream Go subset reads `type`; A2A 0.3 reads `kind`.
+                        "parts": [{"kind": "text", "type": "text", "text": body["text"]}],
                     }
                 },
             },
@@ -100,4 +116,15 @@ async def send_a2a(rt, user, ident, body):
         result = response.json()
         if result.get("error"):
             raise ValueError(json.dumps(result["error"], ensure_ascii=False))
-        return result.get("result")
+        task = result.get("result")
+        if not isinstance(task, dict) or not task.get("id"):
+            raise ValueError("远程 Agent 返回了无效任务")
+        status = task.get("status", "unknown")
+        state = status.get("state", "unknown") if isinstance(status, dict) else status
+        answer = "".join(
+            part.get("text", "")
+            for artifact in task.get("artifacts", [])
+            for part in artifact.get("parts", [])
+            if part.get("kind", part.get("type")) == "text"
+        )
+        return {"task_id": task["id"], "state": state, "text": answer}

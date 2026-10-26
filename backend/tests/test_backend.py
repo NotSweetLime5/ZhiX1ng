@@ -137,7 +137,7 @@ nodes:
     assert replay.status_code == 400
 
 
-async def test_native_milvus_bm25_and_index_idempotence(rt, client):
+async def test_native_milvus_bm25_and_index_idempotence(rt, client, monkeypatch):
     response = await client.post(
         "/api/v1/kbs", json={"name": "检索测试", "embedding_config_id": rt.test_embed["id"]}
     )
@@ -151,7 +151,13 @@ async def test_native_milvus_bm25_and_index_idempotence(rt, client):
     doc = upload.json()["data"]
     await rt.rag.index(doc["id"])
     first = await rt.db.rows(t.chunks, t.chunks.c.document_id == doc["id"])
-    await rt.rag.index(doc["id"])
+
+    async def unexpected_embedding(*args, **kwargs):
+        raise AssertionError("A replayed ready-document job must not call the embedding provider again")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(rt.gateway, "embed", unexpected_embedding)
+        await rt.rag.index(doc["id"])
     second = await rt.db.rows(t.chunks, t.chunks.c.document_id == doc["id"])
     assert [c["id"] for c in first] == [c["id"] for c in second]
     response = await client.post(f"/api/v1/kbs/{kb['id']}/retrieve", json={"query": "LangGraph 审批恢复"})
@@ -197,12 +203,17 @@ async def test_mcp_sync_and_reconstruct_after_restart(rt, client):
         import httpx
 
         for _ in range(100):
+            assert process.poll() is None, "MCP test server exited before it was ready"
             try:
-                async with httpx.AsyncClient() as probe:
-                    await probe.get("http://127.0.0.1:18086/mcp", timeout=1)
-                break
+                async with httpx.AsyncClient(trust_env=False) as probe:
+                    response = await probe.get("http://127.0.0.1:18086/mcp", timeout=1)
+                if response.status_code < 500:
+                    break
             except httpx.HTTPError:
-                await asyncio.sleep(0.1)
+                pass
+            await asyncio.sleep(0.1)
+        else:
+            pytest.fail("MCP test server did not become ready")
         created = await client.post(
             "/api/v1/admin/mcp/servers", json={"name": "Test MCP", "url": "http://127.0.0.1:18086/mcp"}
         )

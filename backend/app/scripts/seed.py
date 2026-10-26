@@ -1,4 +1,5 @@
 import asyncio
+import secrets
 
 from sqlalchemy import insert, select, text
 
@@ -9,11 +10,22 @@ from app.repositories.database import Database
 from app.services.tools import BUILTINS
 
 
+def bootstrap_password(cfg):
+    password = cfg.admin_password or secrets.token_urlsafe(24)
+    if len(password) < 16 or password.startswith("replace-with-"):
+        raise ValueError("首次初始化需要至少16字符的 NX_ADMIN_PASSWORD；留空则自动生成")
+    return password, not bool(cfg.admin_password)
+
+
 async def seed(db, cfg):
+    generated_password = None
     async with db.engine.begin() as conn:
         await conn.execute(text("SELECT pg_advisory_xact_lock(7171717)"))
         admin = (await conn.execute(select(t.users).where(t.users.c.username == "admin"))).mappings().first()
         if not admin:
+            password, generated = bootstrap_password(cfg)
+            if generated:
+                generated_password = password
             admin = (
                 (
                     await conn.execute(
@@ -22,7 +34,7 @@ async def seed(db, cfg):
                             username="admin",
                             email="admin@zhixing.local",
                             role="admin",
-                            password_hash=passwords.hash(cfg.admin_password),
+                            password_hash=passwords.hash(password),
                         )
                         .returning(t.users)
                     )
@@ -98,13 +110,16 @@ async def seed(db, cfg):
                     model_config_id=model_id,
                 )
             )
+    return generated_password
 
 
 async def main():
     cfg = settings()
     db = Database(cfg.database_url)
     try:
-        await seed(db, cfg)
+        generated_password = await seed(db, cfg)
+        if generated_password:
+            print(f"已创建管理员 admin，一次性密码：{generated_password}，请妥善保存。")
     finally:
         await db.engine.dispose()
 

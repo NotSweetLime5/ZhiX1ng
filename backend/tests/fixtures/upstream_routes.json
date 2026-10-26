@@ -1,0 +1,265 @@
+{
+  "commit": "5c7b81ee35492e35bca61881f061cafb3c65b363",
+  "routes": [
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/a2a/agents/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/mcp/servers/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/models/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/models/providers/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/agents/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/kbs/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/kbs/:id/documents/:docID"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/memories/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/sessions/:id"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/workflows/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/.well-known/agent.json"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/a2a/agents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/mcp/servers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/models/providers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/agents/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/:docID/chunks"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kbs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kbs/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kbs/:id/documents"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/kbs/:id/retrieve"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/me"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/memories"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/models"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sessions"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/sessions/:id/messages"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/tools"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/workflows"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/workflows/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/workflows/runs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/workflows/runs/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/healthz"
+    },
+    {
+      "method": "GET",
+      "path": "/metrics"
+    },
+    {
+      "method": "POST",
+      "path": "/a2a"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/a2a/agents"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/a2a/agents/:id/health"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/a2a/agents/:id/tasks"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/mcp/servers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/mcp/servers/:id/call"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/mcp/servers/:id/health"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/mcp/servers/:id/sync"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/models"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/models/providers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/agents"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/logout"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/register"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/chat/stream"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kbs"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kbs/:id/documents"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/kbs/:id/retrieve"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/memories/:id/archive"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/memories/extract"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/workflows"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/workflows/run"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/workflows/runs/:id/approve"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/workflows/validate"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/mcp/servers/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/models/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/models/providers/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/agents/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/sessions/:id"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/workflows/:id"
+    }
+  ]
+}

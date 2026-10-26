@@ -12,8 +12,12 @@ async def validate_agent(rt, user, values):
     for kb in values.get("kb_ids", []):
         await owned(rt, t.kbs, kb, user)
     for binding in values.get("tools", []):
-        if not binding.get("tool_id") or not await rt.db.get(t.tools, binding["tool_id"]):
-            raise ValueError("工具绑定需要有效 tool_id")
+        row = await rt.db.get(t.tools, binding["tool_id"]) if binding.get("tool_id") else None
+        if not row and binding.get("tool_code"):
+            rows = await rt.db.rows(t.tools, t.tools.c.code == binding["tool_code"], limit=1)
+            row = rows[0] if rows else None
+        if not row or row["status"] != 1:
+            raise ValueError("工具绑定需要有效 tool_id 或 tool_code")
     mode = values.get("config", {}).get("execution_mode", "react")
     if mode not in {"react", "plan"}:
         raise ValueError("execution_mode 支持 react 和 plan")
@@ -24,6 +28,8 @@ async def list_agents(rt, user, paging):
         t.agents,
         t.agents.c.status == 1,
         or_(t.agents.c.creator_id == user["id"], t.agents.c.is_preset.is_(True)),
+        search_fields=("name", "description"),
+        order_by=(t.agents.c.id.asc(),),
         **paging,
     )
 
@@ -33,7 +39,7 @@ async def get_agent(rt, user, ident):
 
 
 async def create_agent(rt, user, body):
-    values = body.model_dump(exclude_unset=True)
+    values = body.model_dump(exclude_unset=True, exclude_none=True)
     if not values.get("name"):
         raise ValueError("Agent 名称必填")
     values.setdefault("model_config_id", (await rt.gateway.resolve()).model["id"])
@@ -44,6 +50,9 @@ async def create_agent(rt, user, body):
 async def update_agent(rt, user, ident, body):
     await owned(rt, t.agents, ident, user, "creator_id")
     values = body.model_dump(exclude_unset=True)
+    values = {
+        key: value for key, value in values.items() if value is not None or key == "fallback_model_config_id"
+    }
     await validate_agent(rt, user, values)
     return await rt.db.change(t.agents, ident, values)
 

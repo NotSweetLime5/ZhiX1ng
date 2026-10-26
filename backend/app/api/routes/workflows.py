@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from app.api.dependencies import Paging, current_user, runtime
 from app.api.responses import ok
 from app.schemas import Approval, RunInput, WorkflowInput
-from app.schemas.workflow import WorkflowValidationInput
+from app.schemas.workflow import WorkflowUpdate, WorkflowValidationInput
 from app.services import workflows as service
 
 router = APIRouter(tags=["workflows"])
@@ -52,7 +52,7 @@ async def get_workflow(ident: int, user=Depends(current_user), rt=Depends(runtim
 
 
 @router.put("/workflows/{ident}")
-async def update_workflow(ident: int, body: WorkflowInput, user=Depends(current_user), rt=Depends(runtime)):
+async def update_workflow(ident: int, body: WorkflowUpdate, user=Depends(current_user), rt=Depends(runtime)):
     return ok(await service.update_workflow(ident=ident, body=body, user=user, rt=rt))
 
 

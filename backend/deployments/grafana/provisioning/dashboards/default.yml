@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: Zhixing
+    folder: Zhixing
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards

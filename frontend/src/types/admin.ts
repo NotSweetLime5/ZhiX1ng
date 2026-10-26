@@ -1,5 +1,5 @@
 /**
- * 管理域类型 —— 对应 model/llm.go 与 model/agent.go（MCP/A2A）。
+ * 管理域类型 —— 对应 app/models/llm.py 与 app/models/agent.py（MCP/A2A）。
  * 仅 admin 角色可访问对应接口。
  */
 

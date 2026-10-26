@@ -59,7 +59,7 @@ export function LoginPage() {
           <form onSubmit={submit} className="space-y-5">
             <div><label htmlFor="username" className="field-label">用户名</label><Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="输入用户名" autoComplete="username" required className="py-3" /></div>
             {mode === 'register' && <div><label htmlFor="email" className="field-label">邮箱</label><Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" required className="py-3" /></div>}
-            <div><label htmlFor="password" className="field-label">密码</label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="输入密码" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required className="py-3" /></div>
+            <div><label htmlFor="password" className="field-label">密码</label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === 'register' ? '至少 12 位密码' : '输入密码'} minLength={mode === 'register' ? 12 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} required className="py-3" /></div>
             <Button type="submit" loading={loading} className="w-full py-3">{mode === 'login' ? '登录工作空间' : '创建账号'}<Icon name="arrow" className="h-4 w-4" /></Button>
           </form>
           <div className="mt-7 text-center text-xs text-ash">{mode === 'login' ? '还没有账号？' : '已有账号？'}<button className="ml-2 font-medium text-lime hover:underline" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>{mode === 'login' ? '立即注册' : '返回登录'}</button></div>

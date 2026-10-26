@@ -1,5 +1,5 @@
 /**
- * Agent 与工具域类型 —— 对应 model/agent.go。
+ * Agent 与工具域类型 —— 对应 app/models/agent.py。
  */
 
 /** Agent 配置（host 路由聚合 / expert 专项执行） */

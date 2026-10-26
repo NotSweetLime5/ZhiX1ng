@@ -1,5 +1,5 @@
 /**
- * 知识库接口 —— 对应 router.go 知识库分组。
+ * 知识库接口 —— 对应 app/api/routes/knowledge.py。
  * 上传为 multipart（c.FormFile("file")）。
  */
 import { http } from '@/lib/request';

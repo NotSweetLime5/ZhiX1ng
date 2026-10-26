@@ -1,6 +1,6 @@
 /**
- * 对话域类型 —— 对应 model/auth.go(Session/Message)、agent/event.go(SSE)、
- * rag/engine Ref、runtime/planner Plan。
+ * 对话域类型 —— 对应 app/models/chat.py、app/services/chat.py（SSE）、
+ * app/services/rag.py 的引用和 app/schemas/agent.py 的计划结构。
  */
 import type { PageQuery } from './api';
 
@@ -79,7 +79,7 @@ export interface Message {
 export type SessionQuery = PageQuery;
 
 /* ============================================================
-   SSE 事件协议 —— 与 agent/event.go 十二种事件一一对应
+   SSE 事件协议 —— 与 app/agents/runtime.py 及 app/services/chat.py 对齐
    序列：meta → (reasoning/plan/tool_call/tool_result/agent_event/refs/usage/approval)*
        → delta* → done | error
    ============================================================ */

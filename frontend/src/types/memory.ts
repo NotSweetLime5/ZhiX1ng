@@ -1,5 +1,5 @@
 /**
- * 记忆域类型 —— 对应 model/memory.go。
+ * 记忆域类型 —— 对应 app/models/memory.py。
  */
 
 /** 长期记忆 */

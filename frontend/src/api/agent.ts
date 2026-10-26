@@ -1,5 +1,5 @@
 /**
- * Agent 与工具接口 —— 对应 router.go Agent 分组。
+ * Agent 与工具接口 —— 对应 app/api/routes/agents.py。
  */
 import { http } from '@/lib/request';
 import type { Paged, PageQuery } from '@/types/api';

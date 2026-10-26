@@ -1,5 +1,5 @@
 /**
- * 记忆接口 —— 对应 router.go 记忆分组。
+ * 记忆接口 —— 对应 app/api/routes/memories.py。
  */
 import { http } from '@/lib/request';
 import type { Paged, PageQuery } from '@/types/api';

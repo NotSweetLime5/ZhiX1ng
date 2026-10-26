@@ -6,7 +6,7 @@ from typing import Annotated, TypedDict
 import yaml
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
-from simpleeval import simple_eval
+from simpleeval import EvalWithCompoundTypes
 from sqlalchemy.dialects.postgresql import insert
 
 from app import models as t
@@ -15,6 +15,19 @@ from app.core.serialization import serial
 
 class Rejected(Exception):
     pass
+
+
+class WorkflowLoader(yaml.SafeLoader):
+    """Keep ordinary Go YAML identifiers such as yes/no/on/off as strings."""
+
+
+WorkflowLoader.yaml_implicit_resolvers = {
+    key: [(tag, pattern) for tag, pattern in values if tag != "tag:yaml.org,2002:bool"]
+    for key, values in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+WorkflowLoader.add_implicit_resolver(
+    "tag:yaml.org,2002:bool", re.compile(r"^(?:true|false|True|False|TRUE|FALSE)$"), list("tTfF")
+)
 
 
 def merge(left, right):
@@ -28,7 +41,7 @@ class State(TypedDict, total=False):
 
 
 def parse_dsl(raw):
-    data = yaml.safe_load(raw)
+    data = yaml.load(raw, Loader=WorkflowLoader)
     if not isinstance(data, dict) or not data.get("name"):
         raise ValueError("DSL 必须包含 name")
     nodes = data.get("nodes", [])
@@ -52,7 +65,7 @@ def parse_dsl(raw):
             "llm": ["prompt"],
             "tool": ["tool_code"],
             "kb": ["kb_id", "query"],
-            "condition": ["expr", "then", "else"],
+            "condition": [],
             "parallel": ["branches"],
             "subflow": ["workflow"],
         }.get(kind, [])
@@ -61,7 +74,11 @@ def parse_dsl(raw):
         references = (
             node.get("branches", [])
             if kind == "parallel"
-            else ([node.get("then"), node.get("else")] if kind == "condition" else [])
+            else (
+                [target for target in (node.get("then"), node.get("else")) if target]
+                if kind == "condition"
+                else []
+            )
         )
         for reference in references:
             if reference not in keys:
@@ -71,8 +88,8 @@ def parse_dsl(raw):
             branches.update(references)
             for target in references:
                 branch = next(n for n in nodes if n["key"] == target)
-                if branch["type"] not in {"llm", "tool", "kb"}:
-                    raise ValueError("parallel 分支支持 llm/tool/kb 单节点")
+                if branch["type"] == "human":
+                    raise ValueError("human 审批必须位于主流程或子工作流，不能在 parallel 中绕过审批")
     edges = data.get("edges")
     if not edges:
         linear = [k for k in keys if k not in branches]
@@ -85,6 +102,11 @@ def parse_dsl(raw):
         if not isinstance(edge, dict) or edge.get("from") not in keys or edge.get("to") not in keys:
             raise ValueError("边引用不存在的节点")
         adj[edge["from"]].append(edge["to"])
+    for node in nodes:
+        if node["type"] == "condition":
+            fallback = next((edge["to"] for edge in edges if edge["from"] == node["key"]), END)
+            node["then"] = node.get("then") or fallback
+            node["else"] = node.get("else") or fallback
     color = {}
 
     def visit(key):
@@ -121,11 +143,33 @@ def render(value, state):
             if key == "result" and not isinstance(current, dict):
                 continue
             if not isinstance(current, dict) or key not in current:
-                raise ValueError(f"缺少模板变量：{match.group(1)}")
+                return match.group(0)
             current = current[key]
         return current if isinstance(current, str) else json.dumps(current, ensure_ascii=False)
 
     return re.sub(r"{{\s*([^{}]+?)\s*}}", resolve, value)
+
+
+def condition(expression, values):
+    if not isinstance(expression, str):
+        expression = "" if expression is None else str(expression)
+    if not expression.strip():
+        return True
+    # Preserve quoted text: words/operators inside literals are user data.
+    segments = re.split(r"""("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')""", expression)
+    for index in range(0, len(segments), 2):
+        part = segments[index].replace("&&", " and ").replace("||", " or ")
+        part = re.sub(r"!(?!=)", " not ", part)
+        segments[index] = re.sub(
+            r"\b(true|false|nil)\b",
+            lambda m: {
+                "true": "True",
+                "false": "False",
+                "nil": "None",
+            }[m.group()],
+            part,
+        )
+    return bool(EvalWithCompoundTypes(names=values, functions={}).eval("".join(segments).strip()))
 
 
 class Workflow:
@@ -148,6 +192,10 @@ class Workflow:
             await conn.execute(stmt.on_conflict_do_update(index_elements=["run_id", "node_key"], set_=values))
 
     async def execute(self, node, state, user, dsl, run_id, config, stack):
+        async with asyncio.timeout(min(300, max(1, node.get("timeout_s", 60)))):
+            return await self._execute(node, state, user, dsl, run_id, config, stack)
+
+    async def _execute(self, node, state, user, dsl, run_id, config, stack):
         kind, values = node["type"], state["values"]
         if kind == "llm":
             desc = await self.gateway.resolve(alias=node.get("model"))
@@ -163,10 +211,7 @@ class Workflow:
                 node["tool_code"], render(node.get("args", {}), values), user, state.get("approved", False)
             )
         if kind == "condition":
-            # expr-style true/false &&/|| are accepted alongside Python expressions.
-            expr = node["expr"].replace("&&", " and ").replace("||", " or ")
-            expr = re.sub(r"\btrue\b", "True", re.sub(r"\bfalse\b", "False", expr))
-            return bool(simple_eval(expr, names=values, functions={}))
+            return condition(node.get("expr", ""), values)
         if kind == "parallel":
 
             async def branch(key):

@@ -11,4 +11,6 @@ jobs = table(
     col("attempts", Integer, 0),
     col("error", default=""),
     col("lease_until", DateTime(timezone=True), nullable=True),
+    col("queue_revision", Integer, 0),
+    col("stream_id", default=""),
 )

@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sqlalchemy import delete, func, insert, select, update
 
 from app import models as t
+from app.core.observability import operation
 from app.infrastructure.documents import load_document
 from app.repositories.locking import resource_lock
 
@@ -12,8 +13,9 @@ log = logging.getLogger(__name__)
 
 
 class RAG:
-    def __init__(self, db, gateway, vectors, objects):
+    def __init__(self, db, gateway, vectors, objects, cfg=None):
         self.db, self.gateway, self.vectors, self.objects = db, gateway, vectors, objects
+        self.cfg = cfg
 
     async def index(self, doc_id):
         async with resource_lock(self.db, f"document:{doc_id}"):
@@ -21,7 +23,7 @@ class RAG:
 
     async def _index(self, doc_id):
         doc = await self.db.get(t.documents, doc_id)
-        if not doc or doc["status"] == "deleted":
+        if not doc or doc["status"] in {"deleted", "ready"}:
             return
         kb = await self.db.get(t.kbs, doc["kb_id"])
         if not kb or kb["status"] != "active":
@@ -81,11 +83,12 @@ class RAG:
                     existing.append(dict(row))
         if not await advance("embedding"):
             return
-        for offset in range(0, len(existing), 32):
+        batch_size = self.cfg.rag_batch_embed if self.cfg else 64
+        for offset in range(0, len(existing), batch_size):
             latest = await self.db.get(t.documents, doc_id)
             if not latest or latest["status"] == "deleted":
                 return
-            batch = existing[offset : offset + 32]
+            batch = existing[offset : offset + batch_size]
             vecs = await self.gateway.embed([c["content"] for c in batch], kb["embedding_config_id"])
             await self.vectors.upsert(
                 kb["milvus_collection"],
@@ -112,7 +115,8 @@ class RAG:
                 )
             )
 
-    async def retrieve(self, user_id, kb_id, query, top_k=5):
+    async def retrieve(self, user_id, kb_id, query, top_k=None):
+        top_k = top_k or (self.cfg.rag_final_top_k if self.cfg else 5)
         kb = await self.db.get(t.kbs, kb_id, t.kbs.c.user_id == user_id, t.kbs.c.status == "active")
         if not kb:
             raise ValueError("知识库不存在或无权访问")
@@ -123,13 +127,14 @@ class RAG:
             return []
         ids = [d["id"] for d in ready]
         vector = (await self.gateway.embed([query], kb["embedding_config_id"]))[0]
-        hits = await self.vectors.search(
-            kb["milvus_collection"],
-            vector,
-            query,
-            f"user_id == {user_id} and doc_id in {ids}",
-            max(top_k, 15),
-        )
+        with operation("rag.retrieve", stage="fused"):
+            hits = await self.vectors.search(
+                kb["milvus_collection"],
+                vector,
+                query,
+                f"user_id == {user_id} and doc_id in {ids}",
+                max(top_k, self.cfg.rag_fused_top_n if self.cfg else 15),
+            )
         refs = []
         docs = {d["id"]: d for d in ready}
         for hit in hits:
@@ -148,7 +153,14 @@ class RAG:
         try:
             ranking = await self.gateway.rerank(query, [r["content"] for r in refs]) if refs else None
             if ranking is not None:
-                refs = [{**refs[r["index"]], "score": r["relevance_score"]} for r in ranking]
+                ranked = [
+                    {**refs[r["index"]], "score": r["relevance_score"]}
+                    for r in ranking
+                    if type(r.get("index")) is int and 0 <= r["index"] < len(refs)
+                ]
+                if ranked:
+                    threshold = self.cfg.rag_score_threshold if self.cfg else 0.35
+                    refs = [r for i, r in enumerate(ranked) if i < 3 or r["score"] >= threshold]
         except Exception:
             log.warning("Rerank unavailable; retaining RRF ranking", exc_info=True)
         return refs[:top_k]

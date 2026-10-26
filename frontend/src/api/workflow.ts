@@ -1,5 +1,5 @@
 /**
- * 工作流接口 —— 对应 router.go 工作流分组。
+ * 工作流接口 —— 对应 app/api/routes/workflows.py。
  * DSL 为 YAML 文本；执行为同步接口；HITL 走 runs/:id/approve。
  */
 import { http } from '@/lib/request';

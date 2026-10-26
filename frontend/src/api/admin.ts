@@ -1,5 +1,5 @@
 /**
- * 管理接口（admin 角色）—— 对应 router.go admin 分组：
+ * 管理接口（admin 角色）—— 对应 app/api/routes/models.py 和 integrations.py：
  * 模型供应商/模型配置、MCP Server、A2A 远程 Agent。
  */
 import { http } from '@/lib/request';

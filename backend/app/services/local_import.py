@@ -163,7 +163,16 @@ async def import_document(rt, user, kb, path):
         )
         for job in failed:
             await rt.db.change(
-                t.jobs, job["id"], {"status": "pending", "attempts": 0, "lease_until": None, "error": ""}
+                t.jobs,
+                job["id"],
+                {
+                    "status": "pending",
+                    "attempts": 0,
+                    "lease_until": None,
+                    "error": "",
+                    "stream_id": "",
+                    "queue_revision": t.jobs.c.queue_revision + 1,
+                },
             )
         return existing[0], False
     file = UploadFile(io.BytesIO(data), filename=path.name)

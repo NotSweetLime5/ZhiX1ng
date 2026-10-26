@@ -1,5 +1,5 @@
-// Ep18 压测脚本二：login（查库 + bcrypt 密码校验，是 CPU 重操作）
-// 运行前确认 teacher 账号已注册（ep01 注册流程），否则全部 401。
+// FastAPI 登录压测：查询数据库并使用 Argon2 验证密码。
+// 运行前执行 Python seed，确认 admin 账号可登录。
 // 注意：只压 /healthz 和 /login，绝对不要压 /chat/stream（烧钱 + 上游限流 + 熔断打开）。
 import http from 'k6/http';
 import { check } from 'k6';
@@ -15,7 +15,7 @@ export const options = {
   },
   thresholds: {
     http_req_failed: ['rate<0.01'],
-    http_req_duration: ['p(95)<500'], // 登录含 bcrypt，P95 阈值放宽到 500ms
+    http_req_duration: ['p(95)<500'], // 登录含 Argon2，P95 阈值放宽到 500ms
   },
 };
 

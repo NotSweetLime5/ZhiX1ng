@@ -36,29 +36,44 @@ class Security:
             raise jwt.InvalidTokenError("错误的令牌类型")
         return claims
 
-    async def tokens(self, user):
+    def token_pair(self, user):
         stamp = int(time.time())
         base = {"sub": str(user["id"]), "role": user["role"], "iat": stamp}
         access = jwt.encode(
-            {**base, "type": "access", "exp": stamp + self.cfg.access_ttl}, self.cfg.jwt_secret
+            {**base, "type": "access", "jti": str(uuid.uuid4()), "exp": stamp + self.cfg.access_ttl},
+            self.cfg.jwt_secret,
         )
         refresh = jwt.encode(
             {**base, "type": "refresh", "jti": str(uuid.uuid4()), "exp": stamp + self.cfg.refresh_ttl},
             self.cfg.jwt_secret,
         )
-        key = f"nx:refresh:{user['id']}"
+        return {"access_token": access, "refresh_token": refresh, "expires_in": self.cfg.access_ttl}
+
+    async def tokens(self, user):
+        pair = self.token_pair(user)
+        key = f"{self.cfg.redis_namespace}:refresh:{user['id']}"
         async with self.redis.pipeline(transaction=True) as pipe:
-            pipe.sadd(key, refresh)
+            pipe.sadd(key, pair["refresh_token"])
             pipe.expire(key, self.cfg.refresh_ttl)
             await pipe.execute()
-        return {"access_token": access, "refresh_token": refresh, "expires_in": self.cfg.access_ttl}
+        return pair
 
     async def refresh(self, token, db, users):
         claims = self.decode(token, "refresh")
-        if not await self.redis.sismember(f"nx:refresh:{claims['sub']}", token):
-            raise jwt.InvalidTokenError("刷新令牌已失效")
         user = await db.get(users, int(claims["sub"]))
         if not user or user["status"] != 1:
             raise jwt.InvalidTokenError("用户不可用")
-        # Keep the old token valid until expiry, so concurrent tabs can refresh safely.
-        return await self.tokens(user)
+        pair = self.token_pair(user)
+        rotated = await self.redis.eval(
+            "if redis.call('SREM', KEYS[1], ARGV[1]) == 0 then return 0 end "
+            "redis.call('SADD', KEYS[1], ARGV[2]); "
+            "redis.call('EXPIRE', KEYS[1], ARGV[3]); return 1",
+            1,
+            f"{self.cfg.redis_namespace}:refresh:{claims['sub']}",
+            token,
+            pair["refresh_token"],
+            self.cfg.refresh_ttl,
+        )
+        if not rotated:
+            raise jwt.InvalidTokenError("刷新令牌已失效")
+        return pair

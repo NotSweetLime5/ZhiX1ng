@@ -22,6 +22,8 @@ async def safe_provider(row, rt):
 async def listing(table, required, rt, user, type=None):
     filters = [table.c.type == type] if table is t.models and type else []
     rows = await rt.db.rows(table, *filters, limit=10000)
+    if table is t.models:
+        rows.sort(key=lambda row: (row["priority"], row["id"]))
     if table is t.providers:
         rows = [await safe_provider(row, rt) for row in rows]
     return rows

@@ -20,6 +20,7 @@ from app.api.routes.a2a import router as a2a_router
 from app.core.brand import APP_NAME, APP_VERSION
 from app.core.config import settings
 from app.core.errors import ServiceError
+from app.core.observability import configure_tracing
 from app.runtime import Runtime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -101,16 +102,4 @@ async def metrics():
     return Response(generate_latest(), media_type="text/plain; version=0.0.4")
 
 
-if settings().otel_endpoint:
-    from opentelemetry import trace
-    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
-    provider = TracerProvider()
-    provider.add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter(endpoint=settings().otel_endpoint.rstrip("/") + "/v1/traces"))
-    )
-    trace.set_tracer_provider(provider)
-    FastAPIInstrumentor.instrument_app(app)
+configure_tracing(settings(), "zhixing-api", app)

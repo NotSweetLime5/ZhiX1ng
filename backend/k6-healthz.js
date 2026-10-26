@@ -1,4 +1,4 @@
-// Ep18 压测脚本一：healthz（纯内存应答，不走认证/DB/LLM，是系统吞吐天花板）
+// FastAPI 健康检查压测：检查 PostgreSQL、Redis 连通性，不调用模型。
 // 运行：k6 run k6-healthz.js  （可用 BASE=http://localhost:8080 覆盖目标地址）
 import http from 'k6/http';
 import { check } from 'k6';

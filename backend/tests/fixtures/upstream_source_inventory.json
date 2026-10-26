@@ -1,0 +1,1905 @@
+{
+  "repository": "https://github.com/chengpeng-cp/nexus-agent",
+  "commit": "5c7b81ee35492e35bca61881f061cafb3c65b363",
+  "file_count": 104,
+  "function_count": 639,
+  "route_count": 65,
+  "missing_http_routes": [],
+  "scope": "Manual behavioral review plus source inventory. File mappings alone do not prove behavioral equivalence.",
+  "files": [
+    {
+      "go_file": "backend/cmd/cli/main.go",
+      "sha256": "18cc65025aeae0b9498e180e48467646506d9348506a517e05fae903cf6819a3",
+      "declarations": [
+        "main",
+        "NewClient",
+        "Login",
+        "Chat",
+        "render"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/cli.py",
+        "backend/app/terminal.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/cmd/migrate/main.go",
+      "sha256": "a099430d4b2ddd4a7ad44c7e76350b141751ed865559b2f0e14235ec00cdc454",
+      "declarations": [
+        "main",
+        "run",
+        "seedAdmin",
+        "bootstrapPassword",
+        "printBootstrapCredential",
+        "disabledCtx"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/cli.py",
+        "backend/alembic/versions/001_python_backend.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/cmd/server/main.go",
+      "sha256": "b504acca130399f3a325549ee789bcd55a3460b62cc7fc62566ccb0bba03e463",
+      "declarations": [
+        "main",
+        "run",
+        "startA2AServer",
+        "kbSearchFunc"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/main.py",
+        "backend/app/runtime.py",
+        "backend/app/a2a_server.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/cmd/worker/main.go",
+      "sha256": "7abdbc6694b4d7eb304552c987c7ec008a357f6e5bc68b274e9ee1864ef6044b",
+      "declarations": [
+        "main",
+        "run"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/worker.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/a2a/client.go",
+      "sha256": "2a18c5ea190921443b35552a4fc79c4bf52f29d8696245531a46fd1c23bd7b7d",
+      "declarations": [
+        "NewClient",
+        "FetchCard",
+        "SendMessage",
+        "ExtractText"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/a2a.py",
+        "backend/app/services/integrations.py",
+        "backend/app/a2a_server.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/a2a/server.go",
+      "sha256": "4cc6a4f72238036fb23bc3b9100c64d14df6077d2c9e38ec0167d947bb4d5afa",
+      "declarations": [
+        "NewServer",
+        "CardHandler",
+        "RPCHandler",
+        "newTaskID",
+        "writeRPCResult",
+        "writeRPCError",
+        "RegisterRoutes"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/a2a.py",
+        "backend/app/services/integrations.py",
+        "backend/app/a2a_server.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/a2a/types.go",
+      "sha256": "f7bb8807e93be4c76cf7ec82fc85830e7e15da62231a4f86bf4238eb196d4c4e",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/a2a.py",
+        "backend/app/services/integrations.py",
+        "backend/app/a2a_server.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/agent/event.go",
+      "sha256": "917146afda13368ac9450fd08f6c6090c057d4100dee69ea9cd64c802c366aa2",
+      "declarations": [
+        "Evt",
+        "EvtDelta",
+        "EvtReasoning",
+        "EvtToolCall",
+        "EvtToolResult",
+        "EvtAgentEvent",
+        "EvtUsage",
+        "EvtDone",
+        "EvtError"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/agents/planning.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/agent/host/host.go",
+      "sha256": "6b1e08eef3bf783b51607c164a1721135b4494f37375d7b737b4669856a61278",
+      "declarations": [
+        "New",
+        "Run",
+        "loop",
+        "route",
+        "chatForRoute",
+        "forwardDirect",
+        "buildExpertMessages",
+        "lastUserMessage",
+        "parseRouteIndex",
+        "send",
+        "str",
+        "truncateRunes"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/agents/planning.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/agent/naive/react_loop.go",
+      "sha256": "58670a11d4c81efe180baa68c13d648be2d275b5e8c52d84bd0c52dd10ceb9e9",
+      "declarations": [
+        "Run"
+      ],
+      "classification": "unwired_helper",
+      "python_files": [],
+      "note": "Teaching-only ReAct implementation, not imported by server or CLI."
+    },
+    {
+      "go_file": "backend/internal/agent/runtime/planner.go",
+      "sha256": "b174ece274b4a524656821cb8864c80cd31baf4292168d6964956357ecd7f553",
+      "declarations": [
+        "MakePlan",
+        "Replan",
+        "extractJSON",
+        "planJSON"
+      ],
+      "classification": "unwired_helper_with_python_extension",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/agents/planning.py"
+      ],
+      "note": "Original MakePlan/Replan have no production caller; Python plan mode is additionally wired."
+    },
+    {
+      "go_file": "backend/internal/agent/runtime/runner.go",
+      "sha256": "91d59d1e053f7f822ffa1bb0dc9f3d8c96c9093283fba2971eca93c94d3c8da9",
+      "declarations": [
+        "NewReactRunner",
+        "Run",
+        "loop",
+        "emit",
+        "parseArgsForTrace",
+        "costOf"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/agents/planning.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/agent/runtime/util.go",
+      "sha256": "084ae5899c03b1e821ce10528f1a4e59c31509988c3ad08d6fb984c59aded642",
+      "declarations": [
+        "CalcCost",
+        "fmtCost"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/agents/planning.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler.go",
+      "sha256": "63bdb3b7f5757283e26ae3cc7209d580e88f9d8f100d451c736d6c3c7796d2c3",
+      "declarations": [
+        "New",
+        "pathID",
+        "parseID",
+        "userID",
+        "isAdmin"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/__init__.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_agent.go",
+      "sha256": "edde921ea4cedc4b9e43068cf972e49d9d64ebc10846521adaa12fb6d0d46579",
+      "declarations": [
+        "ListAgents",
+        "GetAgent",
+        "CreateAgent",
+        "UpdateAgent",
+        "DeleteAgent",
+        "ListTools"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/agents.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_auth.go",
+      "sha256": "3cc4347ba56c7e9466c2ae498763c9c899e0ef064af8060c9c879c0709e53d81",
+      "declarations": [
+        "Register",
+        "Login",
+        "Refresh",
+        "Logout",
+        "Me"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/auth.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_chat.go",
+      "sha256": "0792e5512632cee1b6367b772dfbf8e2f8e89416eeb8066dfd36ee2efd3da0c1",
+      "declarations": [
+        "Chat",
+        "writeSSE",
+        "ListSessions",
+        "ListMessages",
+        "RenameSession",
+        "DeleteSession"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/chat.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_integration.go",
+      "sha256": "72bc443bd42e8ee3d9968323b6571680f6f4a8cd47c1fc7648aac1bafb6a779e",
+      "declarations": [
+        "ListMCPServers",
+        "CreateMCPServer",
+        "UpdateMCPServer",
+        "DeleteMCPServer",
+        "SyncMCPServer",
+        "CheckMCPServer",
+        "CallMCPTool",
+        "ListA2AAgents",
+        "RegisterA2AAgent",
+        "DeleteA2AAgent",
+        "CheckA2AAgent",
+        "SendA2ATask"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/integrations.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_kb.go",
+      "sha256": "7817dffb852bbeb12444e5ce8f5bacbe7296bbc46d6630d8804d952ddb3033f0",
+      "declarations": [
+        "ListKBs",
+        "GetKB",
+        "CreateKB",
+        "DeleteKB",
+        "UploadDoc",
+        "ListDocs",
+        "DeleteDoc",
+        "ListChunks",
+        "TestRetrieve",
+        "pathIDNamed"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/knowledge.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_memory.go",
+      "sha256": "7c051527dcfd71cd9b01bcb1ffc2a5ea66c3cc12865ee36e86f9a1a5d683e163",
+      "declarations": [
+        "ListMemories",
+        "DeleteMemory",
+        "ArchiveMemory",
+        "ExtractMemory"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/memories.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_model.go",
+      "sha256": "544181df49195d5126ee1b0e4d43cc162f2518c01b07066c0b5b39474e07ff47",
+      "declarations": [
+        "ListProviders",
+        "CreateProvider",
+        "UpdateProvider",
+        "DeleteProvider",
+        "ListModels",
+        "ListChatModels",
+        "CreateModel",
+        "UpdateModel",
+        "DeleteModel"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/models.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/handler_workflow.go",
+      "sha256": "1ed3e762705465105b82435e041be9003027af7edbefec209b03d6b3e0e83a47",
+      "declarations": [
+        "ListWorkflows",
+        "GetWorkflow",
+        "CreateWorkflow",
+        "UpdateWorkflow",
+        "DeleteWorkflow",
+        "ValidateWorkflow",
+        "RunWorkflow",
+        "ApproveRun",
+        "ListRuns",
+        "GetRun"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/routes/workflows.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/logging.go",
+      "sha256": "c2c55742eaa929a2ca04350f5e5ef25d22c7f79b203c4fe7d6f4e099fb4f0738",
+      "declarations": [
+        "logInfo",
+        "logError",
+        "toString"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/__init__.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/middleware.go",
+      "sha256": "714c73b87d118bca1b109cc8d5d77cdb688599c8b79d493da2b068a3efca3ada",
+      "declarations": [
+        "CORS",
+        "Recovery",
+        "AccessLog",
+        "Tracing",
+        "TakeRootSpan",
+        "Auth",
+        "AdminOnly",
+        "abort"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/__init__.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/response.go",
+      "sha256": "406d2c6d8b36c2d18d686e8b53ec8560633409beac359d459c7480ca4cd044b9",
+      "declarations": [
+        "OK",
+        "parsePagination",
+        "forbidden",
+        "Fail",
+        "itoa"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/__init__.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/api/router.go",
+      "sha256": "bd949d9c5927bdfa08d07b740c7f16f25732f49d216c4f8bb02c1fc83b2def31",
+      "declarations": [
+        "Register",
+        "Healthz",
+        "Metrics"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/api/__init__.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/config/config.go",
+      "sha256": "e4d04f5f0399cd174f9346f5b15e8731bcaf72ccf8a44a150512db6d250442ef",
+      "declarations": [
+        "Load",
+        "validate",
+        "isDir",
+        "exeDir"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/config.py",
+        "backend/tests/test_upstream_parity.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/config/config_test.go",
+      "sha256": "7d3c2ad592148b3a90ed782ac57b6d1d8479e2dcb3bbbaf430615e66d1b4d552",
+      "declarations": [
+        "TestValidateProductionSecrets",
+        "TestValidateAllowsDevelopmentDefaults",
+        "TestValidateRejectsReusedProductionSecrets"
+      ],
+      "classification": "baseline_test",
+      "python_files": [
+        "backend/tests/test_upstream_parity.py",
+        "backend/tests/test_backend.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/infra/milvus.go",
+      "sha256": "70b4ec7630066d682a68cf235d16f74c0d36b2b135f64e89398923fd391c87cd",
+      "declarations": [
+        "NewMilvus",
+        "NewKBSchema",
+        "NewMemorySchema",
+        "NewHNSWIndex"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/runtime.py",
+        "backend/app/repositories/database.py",
+        "backend/app/infrastructure/vector_store.py",
+        "backend/app/infrastructure/object_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/infra/minio.go",
+      "sha256": "6e4213a27fcd7f96b952d9367b25c74a49220e1d88bae659f15fa1d737989ea5",
+      "declarations": [
+        "NewMinIO",
+        "ObjectKey"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/runtime.py",
+        "backend/app/repositories/database.py",
+        "backend/app/infrastructure/vector_store.py",
+        "backend/app/infrastructure/object_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/infra/pg.go",
+      "sha256": "026337e9c2d13ede07420956a3c2bff75fdea30bbd9cd764e3d1a8cd73bfd875",
+      "declarations": [
+        "NewPG",
+        "Printf"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/runtime.py",
+        "backend/app/repositories/database.py",
+        "backend/app/infrastructure/vector_store.py",
+        "backend/app/infrastructure/object_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/infra/redis.go",
+      "sha256": "f402506c7e37bc1f87c15013e242c84203de4000f9e35499f1807754cf0cc769",
+      "declarations": [
+        "NewRedis"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/runtime.py",
+        "backend/app/repositories/database.py",
+        "backend/app/infrastructure/vector_store.py",
+        "backend/app/infrastructure/object_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/fallback.go",
+      "sha256": "5d7abc4396112505cb9c0c46a5870cfa581297a461115ffb70569312e94809dd",
+      "declarations": [
+        "NewCircuitBreaker",
+        "Allow",
+        "Record"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/gateway.go",
+      "sha256": "2d6272c8bcfd646c2f9beb450298e4b421a26df4f46e4a5968e6807b6f261750",
+      "declarations": [
+        "NewGateway",
+        "providerFor",
+        "runWithGuard",
+        "Chat",
+        "chatOnce",
+        "ChatStream",
+        "spanOnClose",
+        "streamOnce",
+        "Embed",
+        "Rerank",
+        "recordUsage",
+        "llmAttrs",
+        "usageAttrs"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/openai_compatible.go",
+      "sha256": "ca66bdb6a57fd9a778ec97deb457ac3ed2a02a18fa89a7d2e7116e5a345ad2c3",
+      "declarations": [
+        "client",
+        "toOpenAIMsgs",
+        "toOpenAITools",
+        "Chat",
+        "newHTTPRequest",
+        "ChatStream",
+        "consumeStream",
+        "Embed",
+        "Rerank",
+        "Error",
+        "Unwrap",
+        "IsRetryable",
+        "asRetryable",
+        "classifyHTTPError",
+        "parseAPIError"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": "CompatibleChatOpenAI restores reasoning_content dropped by the generic SDK; HTTP/SSE round-trip regression and real DeepSeek probes pass."
+    },
+    {
+      "go_file": "backend/internal/llm/provider.go",
+      "sha256": "5c596c046c8abac4fedd5dd025f3e138155acdd7da97a0d3c649a3ae3b9c0275",
+      "declarations": [
+        "NewProvider"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/ratelimiter.go",
+      "sha256": "e974c57f19ef19e1a123e12d0b3756f9e538738925bddf2f4a8508192977ea1d",
+      "declarations": [
+        "NewSemaphore",
+        "Acquire",
+        "Release"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/retry.go",
+      "sha256": "7ea4d74d1ec2854bd999624b25d9facb46d9e59ffc042e0dc6adee49b2aa3dc0",
+      "declarations": [
+        "DefaultRetryConfig",
+        "RetryDo"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/tokenizer.go",
+      "sha256": "9e4552bdc37fe37745cd8eccf779e29bb2a965ab0439fcb9c23b786f08eaaf26",
+      "declarations": [
+        "EstimateTokens",
+        "EstimateMessages"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/llm/types.go",
+      "sha256": "842a940c820773c24008f8467c454a8d67d000ecbb1bc62ef1739609e84efe2f",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py",
+        "backend/app/core/observability.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/mcp/client.go",
+      "sha256": "a398c140d0d8a09048d0b3de93a63938ff2be38f3e4279bb38292eb01818b020",
+      "declarations": [
+        "NewClient",
+        "Initialize",
+        "ListTools",
+        "CallTool",
+        "call",
+        "extractJSONPayload",
+        "splitLines",
+        "trimCR",
+        "cutPrefix",
+        "trimSpace",
+        "truncate",
+        "Ping"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/services/integrations.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/memory/long_term/long_term.go",
+      "sha256": "ee5d3377f5bc780e6be75c61065488781ec9c35cf849a74fb08e80e6f247bd84",
+      "declarations": [
+        "DefaultConfig",
+        "NewManager",
+        "ExtractAndStore",
+        "Recall",
+        "extractJSON"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/services/memory.py",
+        "backend/app/services/memories.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/memory/session/session.go",
+      "sha256": "27b43b7d05a3fc70f665876771467edb813478c54c57a5889c3944b12f97f4d8",
+      "declarations": [
+        "NewCache",
+        "ctxKey",
+        "GetWindow",
+        "Append",
+        "Invalidate",
+        "NewManager",
+        "Repo",
+        "Cache"
+      ],
+      "classification": "unwired_helper",
+      "python_files": [],
+      "note": "Redis cache/manager are defined but not constructed by production code."
+    },
+    {
+      "go_file": "backend/internal/memory/short_term/short_term.go",
+      "sha256": "10a1ff0202b8d0f703ead19a3ea13f2aaad68557a5a87fb56293bb99205b85f4",
+      "declarations": [
+        "DefaultShortTermConfig",
+        "NewShortTerm",
+        "Apply",
+        "SetSummary",
+        "Summary",
+        "findOldestToolMsg",
+        "estimateMsgTokens",
+        "truncateForBudget"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/runtime.py",
+        "backend/app/services/memory.py",
+        "backend/app/services/memories.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/memory/short_term/summarizer.go",
+      "sha256": "639d58e21bf85134818bf994c7d3103025c406f157b649f42b19b535c2b3b906",
+      "declarations": [
+        "NewSummarizer",
+        "Summarize",
+        "oneLine"
+      ],
+      "classification": "unwired_helper",
+      "python_files": [],
+      "note": "Summary generation is defined but has no runtime caller."
+    },
+    {
+      "go_file": "backend/internal/model/agent.go",
+      "sha256": "47cede8b65a855d2c1bcab7ac3eb824b3f3fdad6fde449711da99a5bcdedf2ff",
+      "declarations": [
+        "TableName"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/model/auth.go",
+      "sha256": "901e8da436412be7b89face08b2d9d7e8f35259d5c2c76af2c9119c2d7da6fe6",
+      "declarations": [
+        "IsAdmin"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": "Feedback is a declared structure only; original API has no feedback endpoint. User/session/message behavior is mapped."
+    },
+    {
+      "go_file": "backend/internal/model/eval.go",
+      "sha256": "f7bca0ba9ab3dc26b7098d0f1d0fb0159b3766d7aafbdca9faa3e95b57ca9c9b",
+      "declarations": [],
+      "classification": "unwired_contract_with_python_extension",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": "Original tables/repositories exist but no evaluation HTTP route or eval consumer is started."
+    },
+    {
+      "go_file": "backend/internal/model/llm.go",
+      "sha256": "c01ccf22d8869461c80dbfc35bf229cbfcd8c2d7eb1d68fd64da888bdd6d62f4",
+      "declarations": [
+        "MaskAPIKey",
+        "CapabilitiesJSON",
+        "HasCapability"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/model/memory.go",
+      "sha256": "b0fb6ed4a557bda53afe3e3ce0b04976ca047c92dabf59471ab788b9442cebc9",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/model/ops.go",
+      "sha256": "3638de6b76cb997dabac0c33d573e3e24d6f9ad4668ff25b015f13efa6a22943",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/chat.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/model/rag.go",
+      "sha256": "90f43bd6914b6f48f562f266080832df927d3fd016868ddd798462da02fad29a",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/model/workflow.go",
+      "sha256": "9d345483596517aa7ae65b122d260748584bf51a70737ee2b3934af28761a0c7",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/schemas/__init__.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/observability/agent_trace.go",
+      "sha256": "bb76d740fdb8490e97b46e5fd81b38c129abba179e1d82ba58e2160066a54b3b",
+      "declarations": [
+        "NewAgentTrace",
+        "Add",
+        "Done",
+        "Snapshot",
+        "TotalElapsed"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/observability.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/observability/log.go",
+      "sha256": "f1d1f35f23170554408e0a9041335893ca89c75b300870b0c89340dd63ba3279",
+      "declarations": [
+        "LogInfo",
+        "LogWarn",
+        "LogError",
+        "kvToFields"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/observability.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/observability/logger/logger.go",
+      "sha256": "aff12e7a48bb4c5fd15bdc61724a4acff29755b19c08f74403d77f8112eb65b0",
+      "declarations": [
+        "Init",
+        "L",
+        "Debug",
+        "Info",
+        "Warn",
+        "Error",
+        "TraceID"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/observability.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/observability/metrics.go",
+      "sha256": "4e9f286d7d3e7c440e52b933d94ac4bcf89af18c74cdec7f47f86e946b8dd6e0",
+      "declarations": [
+        "MetricsInstance",
+        "InitMetrics"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/observability.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/observability/otel.go",
+      "sha256": "d72a7f60b6f113d7df01417006311fb2e03cfbcd0f4115869c47c2a4a9dfc8e4",
+      "declarations": [
+        "InitTracer",
+        "Tracer",
+        "StartSpan",
+        "StartServerSpan",
+        "MarkError"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/observability.py",
+        "backend/app/main.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/pkg/errcode/errcode.go",
+      "sha256": "2231caf79c5534502b44af52a485a9829e1a0e26225af98c4c1a4415daefc8a9",
+      "declarations": [
+        "Error",
+        "Unwrap",
+        "Cause",
+        "WithCause",
+        "WithMsg",
+        "From"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/errors.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/services/chat.py",
+        "backend/app/terminal.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/pkg/pagination/pagination.go",
+      "sha256": "69f0742fa1b69f3086919fe677631efc6a9e6f23fe17fc584c0b8dddf063b2f0",
+      "declarations": [
+        "Parse",
+        "Offset",
+        "Limit",
+        "toInt"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/errors.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/services/chat.py",
+        "backend/app/terminal.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/pkg/response/response.go",
+      "sha256": "87574e27a3dd90a5ea97677a984af5510bdd8fc46d777fb43ba2ad5a8e933a69",
+      "declarations": [
+        "traceIDFromCtx",
+        "OK",
+        "OKList",
+        "Fail"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/errors.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/services/chat.py",
+        "backend/app/terminal.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/pkg/sse/sse.go",
+      "sha256": "7ca46c8bedcf97a9bf02e64146d930c8f81c021091318f1c1bf0d8acb8231df2",
+      "declarations": [
+        "Write",
+        "WriteString",
+        "Ping"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/errors.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/api/responses.py",
+        "backend/app/services/chat.py",
+        "backend/app/terminal.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/rag/engine/engine.go",
+      "sha256": "12397a939d415773ade173dd46340721a985e38fb16a374b0fe1da9f265aa77b",
+      "declarations": [
+        "New",
+        "SetModels",
+        "EnsureKBVectorCollection",
+        "IndexDocument",
+        "embedChunks",
+        "DeleteDocument",
+        "Retrieve",
+        "BuildContext",
+        "rerank",
+        "recordStart",
+        "observeStage"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/rag.py",
+        "backend/app/infrastructure/vector_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/rag/engine/fusion.go",
+      "sha256": "fe225515381cff9a2582c4da1567e73c34becc6d067281b5bff51a25fa252fed",
+      "declarations": [
+        "Fuse",
+        "chunkFromHit",
+        "chunkPage",
+        "extractTerms",
+        "nowTimer",
+        "elapsedSeconds"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/rag.py",
+        "backend/app/infrastructure/vector_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/rag/loader/loader.go",
+      "sha256": "841b8de20c909ea8519cbb1685d4fc5446d9d26b65395e37b37d478994b0a336",
+      "declarations": [
+        "Load",
+        "loadPlainText",
+        "loadPDF",
+        "loadDocx",
+        "stripXML",
+        "normalizeText"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/infrastructure/documents.py",
+        "backend/app/infrastructure/pdf_ocr.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/rag/splitter/splitter.go",
+      "sha256": "a3378d12a63f54c0643b4961d28b1e9145817901a97e48963d263956f2094fb0",
+      "declarations": [
+        "New",
+        "Split",
+        "splitByHeading",
+        "recursiveSplit",
+        "splitKeepSep"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/rag.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/repo/agent.go",
+      "sha256": "00c609df29108f67f90f82f4989068811622f460d705b2ae1e836f00e4c0c8f2",
+      "declarations": [
+        "Create",
+        "Update",
+        "Delete",
+        "GetByID",
+        "GetByIDForUser",
+        "List",
+        "ListForUser",
+        "UpdateForUser",
+        "DeleteForUser",
+        "ListHosts",
+        "ListExperts",
+        "ListExpertsForUser",
+        "Create",
+        "Update",
+        "Delete",
+        "GetByID",
+        "GetByCode",
+        "ListByCodes",
+        "ListByIDs",
+        "List"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/repo/llm.go",
+      "sha256": "b685a1b34d0fd4bdf983879cf4574738b662f727bd56c87f4f778098d187e9eb",
+      "declarations": [
+        "CreateProvider",
+        "UpdateProvider",
+        "DeleteProvider",
+        "ListProviders",
+        "GetProvider",
+        "CreateModel",
+        "UpdateModel",
+        "DeleteModel",
+        "ListModels",
+        "GetModel",
+        "DefaultModel"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/repo/ops.go",
+      "sha256": "8eabb750a53c0facc99e126ec70c338c7b953a9e59a272fa9575a2bdd7b1915d",
+      "declarations": [
+        "Create",
+        "UpdateContent",
+        "Archive",
+        "ListActive",
+        "ListByUser",
+        "Get",
+        "Delete",
+        "CreateWorkflow",
+        "UpdateWorkflow",
+        "DeleteWorkflow",
+        "GetWorkflow",
+        "ListWorkflows",
+        "GetWorkflowForCreator",
+        "ListWorkflowsForCreator",
+        "UpdateWorkflowForCreator",
+        "DeleteWorkflowForCreator",
+        "CreateRun",
+        "UpdateRun",
+        "GetRun",
+        "ListRuns",
+        "GetRunForCreator",
+        "ListRunsForCreator",
+        "UpsertStepRun",
+        "GetStepRun",
+        "Create",
+        "Update",
+        "Delete",
+        "Get",
+        "List",
+        "DeleteToolsByServer",
+        "Create",
+        "Update",
+        "Delete",
+        "Get",
+        "List",
+        "CreateUsage",
+        "SumUsage",
+        "CreateFeedback",
+        "CreateDataset",
+        "ListDatasets",
+        "CreateCase",
+        "ListCases",
+        "CreateRun",
+        "UpdateRun",
+        "CreateResult"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": "Runtime memory/workflow/MCP/A2A/usage writes are mapped. SumUsage, CreateFeedback and EvalRepo operations have no reachable API consumer in this commit."
+    },
+    {
+      "go_file": "backend/internal/repo/rag.go",
+      "sha256": "4375f54664ecef76f5b82356f27b109b2ea3439afa2cf9d43baa170b05576586",
+      "declarations": [
+        "CreateKB",
+        "UpdateKB",
+        "DeleteKB",
+        "GetKB",
+        "GetKBForUser",
+        "ListKBs",
+        "ListKBsByIDs",
+        "ListKBsByIDsForUser",
+        "CreateDoc",
+        "UpdateDoc",
+        "GetDoc",
+        "ListDocs",
+        "DeleteDoc",
+        "BatchCreate",
+        "ListByDoc",
+        "DeleteByDoc",
+        "ListByIDs",
+        "KeywordSearch",
+        "ListChunks"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/repo/repo.go",
+      "sha256": "e1d5cf489d865f05f71792504374a3343bf905f6b1a3492d56d7f2487a0b8b50",
+      "declarations": [
+        "New"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/repo/session.go",
+      "sha256": "8bfcd1ffb02ca7374a396e2036fac92377ddb3d77e0bbb6bfb8808fc654ffcf4",
+      "declarations": [
+        "CreateSession",
+        "GetSession",
+        "ListSessions",
+        "UpdateSession",
+        "DeleteSession",
+        "CreateMessage",
+        "ListMessages",
+        "ListMessagesAfter",
+        "UpdateSessionStats",
+        "RetitleSession",
+        "CountMessages",
+        "GetMessage",
+        "UpdateMessage"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/repo/user.go",
+      "sha256": "df2d4d405d61aa4024db82e18c5a42dc23b821a215e0e31fb68df0aae37823d2",
+      "declarations": [
+        "Create",
+        "CreateFirstOrUser",
+        "GetByID",
+        "GetByUsername",
+        "ExistsBy",
+        "Update",
+        "Count"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/repositories/database.py",
+        "backend/app/models/__init__.py",
+        "backend/app/services/access.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/security/context.go",
+      "sha256": "9a70237adc0d0b2685f29dedc13bdc42c927246e660e0dd878a5ee90551e9647",
+      "declarations": [
+        "WithUserID",
+        "UserIDFromContext"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/security.py",
+        "backend/app/schemas/chat.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/agents/runtime.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/security/encryption.go",
+      "sha256": "efdf27ab9c4c4f8bef69327297396decb2773ad925e74e8a6d538cf68f3f6da8",
+      "declarations": [
+        "NewEncryptor",
+        "Encrypt",
+        "Decrypt"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/security.py",
+        "backend/app/schemas/chat.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/agents/runtime.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/security/jwt.go",
+      "sha256": "0d54f8ff9d5b3cdfb3574f34f325a5b3ca652585df2273a3f39b52eba45d3f6f",
+      "declarations": [
+        "NewJWTManager",
+        "Generate",
+        "newTokenID",
+        "Parse",
+        "AccessTTL",
+        "RefreshTTL"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/security.py",
+        "backend/app/schemas/chat.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/agents/runtime.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/security/jwt_test.go",
+      "sha256": "b4c606d78ddaaa12ea173a0053598b41659472072ea889525c1ce1f33db5c743",
+      "declarations": [
+        "TestGenerateUsesUniqueRefreshTokens"
+      ],
+      "classification": "baseline_test",
+      "python_files": [
+        "backend/tests/test_upstream_parity.py",
+        "backend/tests/test_backend.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/security/prompt_guard.go",
+      "sha256": "aa78a620fdd8aef841e014c43a3953e4b98addc582e1f2129a4ccbcfda3e687b",
+      "declarations": [
+        "CheckInjection",
+        "SanitizeUserInput"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/core/security.py",
+        "backend/app/schemas/chat.py",
+        "backend/app/api/dependencies.py",
+        "backend/app/agents/runtime.py"
+      ],
+      "note": "SanitizeUserInput is called; CheckInjection/DefenseSuffix are not. Always-on system constraints are wired."
+    },
+    {
+      "go_file": "backend/internal/security/sanitizer.go",
+      "sha256": "63f041482341bfc2a7712fb1975577bb00f2825a63ab56e95af0554e8c7cb975",
+      "declarations": [
+        "MaskPII"
+      ],
+      "classification": "unwired_helper",
+      "python_files": [],
+      "note": "MaskPII has no runtime caller."
+    },
+    {
+      "go_file": "backend/internal/service/a2asvc.go",
+      "sha256": "ff005557fb6bde42c96b5f42660ddbd6b50e7f0b4bdc77b67bd04011263ba8c2",
+      "declarations": [
+        "NewA2AService",
+        "Register",
+        "List",
+        "Delete",
+        "get",
+        "HealthCheck",
+        "SendTask",
+        "InvokeLocal"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/integrations.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/agentsvc.go",
+      "sha256": "8dbc4c44efcd154473986681c3eb7b6a43da3b7cab520ca030fe478ca849b086",
+      "declarations": [
+        "NewAgentService",
+        "List",
+        "Get",
+        "Create",
+        "Update",
+        "Delete",
+        "validateToolBindings",
+        "parseToolBindings"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/agents.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/auth.go",
+      "sha256": "efc629af67303133877cebd45c2d4a969eef2a3e60eb0c4aa06ed3f6bc2f06c3",
+      "declarations": [
+        "NewAuthService",
+        "Register",
+        "Login",
+        "Refresh",
+        "Logout",
+        "StoreRefreshToken",
+        "refreshKey"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/auth.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/auth_test.go",
+      "sha256": "8fc46a85de8cbd43ea2f30d661d4afeaa959a3fcda6ba1c8577c75e27bb3d373",
+      "declarations": [
+        "TestRegisterRejectsWeakOrInvalidInput"
+      ],
+      "classification": "baseline_test",
+      "python_files": [
+        "backend/tests/test_upstream_parity.py",
+        "backend/tests/test_backend.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/chatsvc.go",
+      "sha256": "b517420d6c0690afaed956e7eab175baad68268989df817bea8b68e65a84afd9",
+      "declarations": [
+        "NewChatService",
+        "SetLongTermMemory",
+        "Stream",
+        "ensureSession",
+        "loadAgent",
+        "buildRunInput",
+        "retrieveKBs",
+        "pickRunner",
+        "hostRouteChat",
+        "hostDirectRunner",
+        "pump",
+        "dangerousTools",
+        "buildSystemPrompt",
+        "historyToLLM",
+        "send",
+        "strVal",
+        "intOf",
+        "derefOrZero",
+        "parseIDs",
+        "toolParseBindings",
+        "truncateTitle"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/chat.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/kbsvc.go",
+      "sha256": "15551e26dbde8593bb8a50e11acf981078f9e1db37677dd2c1da660ac632d50d",
+      "declarations": [
+        "NewKBService",
+        "SetMinIO",
+        "CreateKB",
+        "ListKBs",
+        "GetKB",
+        "DeleteKB",
+        "UploadDoc",
+        "ListDocs",
+        "DeleteDoc",
+        "ListChunks",
+        "TestRetrieve",
+        "GetObject",
+        "extOf",
+        "lower",
+        "mimeOf"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/knowledge.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/mcpsvc.go",
+      "sha256": "ccf5ad741dc96edcc899eb93be306114e32ab65e3282e075495fb3ca6e614e5c",
+      "declarations": [
+        "NewMCPService",
+        "SetRegistry",
+        "Create",
+        "Update",
+        "Delete",
+        "List",
+        "get",
+        "Get",
+        "SyncTools",
+        "CallTool",
+        "HealthCheck",
+        "registerHandler",
+        "markStatus",
+        "mcpToolCode",
+        "parseHeaders",
+        "schemaOrEmpty"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/integrations.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/memorysvc.go",
+      "sha256": "b144d6c03bb53f1aa0dcb3f6ff34c98e3e28a080b597a2d814cf1da776d4c751",
+      "declarations": [
+        "NewMemoryService",
+        "SetManager",
+        "List",
+        "Delete",
+        "Archive",
+        "ExtractNow"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/memories.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/modelsvc.go",
+      "sha256": "37f6295ced7be7bd07a2f4712221e2853047c7944f27407f2af2cd72f5692b91",
+      "declarations": [
+        "NewModelService",
+        "ListProviders",
+        "CreateProvider",
+        "UpdateProvider",
+        "DeleteProvider",
+        "ListModels",
+        "ListChatModels",
+        "CreateModel",
+        "UpdateModel",
+        "DeleteModel",
+        "derefStr",
+        "derefCaps",
+        "ResolveModel",
+        "resolveByName",
+        "descriptorOf"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/llm.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/service.go",
+      "sha256": "017783a3fcc8c607f617b965f2a0391e33b7806c7b22a019ee77323bc5305285",
+      "declarations": [
+        "New",
+        "DefaultChat",
+        "DefaultEmbedding",
+        "DefaultRerank",
+        "ResolveModelByAlias",
+        "SetRAGEngine",
+        "reloadDefaultModels"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/runtime.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/service/workflowsvc.go",
+      "sha256": "ac70fa28c7c8e1fe232fd149b16211ec2ae7f8c8dbd918ec421c850569943c07",
+      "declarations": [
+        "NewWorkflowService",
+        "SetEngine",
+        "List",
+        "Get",
+        "Create",
+        "Update",
+        "Delete",
+        "Validate",
+        "Run",
+        "Approve",
+        "ListRuns",
+        "SubflowRunner",
+        "GetWorkflowLookup",
+        "GetWorkflowRun",
+        "mustJSON",
+        "nowPtr"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/workflows.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/builtin_code.go",
+      "sha256": "79cde3a37d7c08bbb7b9a527d58149b4820b47b0446647c0efb1d560e7d1b71f",
+      "declarations": [
+        "RegisterCodeExec",
+        "RegisterKBSearch"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/builtin_files.go",
+      "sha256": "0c3738f77123b3411b203b8701da1e9badf539386b030d493867c4ed7c283b2d",
+      "declarations": [
+        "RegisterFiles",
+        "runFileOps",
+        "RegisterDBQuery",
+        "runDBQuery"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/builtin_simple.go",
+      "sha256": "acb69ebea5aa7c82a2ea648150d50628f01c59e732cd4734f214b36876146b7c",
+      "declarations": [
+        "RegisterSimple",
+        "runCalculator",
+        "runDatetime"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/builtin_web.go",
+      "sha256": "dbbdd1fa9cd4d030812476a13251dce9b3cb63b8fb5147001fe76958ca2d49df",
+      "declarations": [
+        "RegisterWeb",
+        "runWebSearch",
+        "runHTTPClient",
+        "domainAllowed",
+        "stripHTML",
+        "truncateText"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/executor.go",
+      "sha256": "a247a5f874e8bc203d74099a62c2e568e03e4e919494fac750dac3ed1ff339f3",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/executor_impl.go",
+      "sha256": "e13093fef33b65d5c9d63df175388d5e570434a7532dc330d77c32f3988374c1",
+      "declarations": [
+        "NewExecutor",
+        "List",
+        "Invoke",
+        "ctxErr",
+        "ParseAgentBindings"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/registry.go",
+      "sha256": "51d63b6845698a55023e25ee9b22264bf759e3495bd45b888e795482b6f1dbef",
+      "declarations": [
+        "NewRegistry",
+        "Register",
+        "Get",
+        "Codes"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/sandbox.go",
+      "sha256": "372aade8406511991aad4666e15027a843a714d06beb176b80b803ae36151f01",
+      "declarations": [
+        "NewSandbox",
+        "Run",
+        "int64Ptr",
+        "truncate"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/tool/util.go",
+      "sha256": "3a0ee0f1b7c0635c832b905dac0877c02f3b221f1934ff45df3a955da48927d0",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/services/tools.py",
+        "backend/app/models/sandbox.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/vector/milvus_store.go",
+      "sha256": "488ca8edaaafae650a55daf3dc0f5bc1f64adb5f4972b1daa01122aa72901538",
+      "declarations": [
+        "NewMilvusStore",
+        "EnsureCollection",
+        "vectorField",
+        "Upsert",
+        "Search",
+        "Delete",
+        "DropCollection",
+        "Count",
+        "i64FromMeta",
+        "i32FromMeta",
+        "strFromMeta",
+        "fmtInt64Slice"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/infrastructure/vector_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/vector/store.go",
+      "sha256": "1e646e253929804656e42f05aa5d81863aaa1bb571758f6079acaee004a76f43",
+      "declarations": [],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/infrastructure/vector_store.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/worker/worker.go",
+      "sha256": "b725cdb7ec46d8a4f089d46ae39d893c3657fc40a30e11d97f835c4023767929",
+      "declarations": [
+        "NewPublisher",
+        "PublishDocETL",
+        "PublishEvalRun",
+        "New",
+        "Run",
+        "consumeLoop",
+        "claimLoop",
+        "process",
+        "deadLetter",
+        "handleDocETL",
+        "getObject",
+        "isBusyGroup",
+        "truncateErr"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/worker.py",
+        "backend/app/infrastructure/task_queue.py"
+      ],
+      "note": ""
+    },
+    {
+      "go_file": "backend/internal/workflow/dsl.go",
+      "sha256": "8f854e314996b9d6962f4fd67956890ad3208e78cf2afa74928a187750ccbf65",
+      "declarations": [
+        "UnmarshalYAML",
+        "ParseDSL",
+        "Validate",
+        "checkCycle",
+        "Next",
+        "StartKey",
+        "OutKeyOrDefault",
+        "validNodeType",
+        "RenderTemplate",
+        "toStringVal"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/workflow.py",
+        "backend/app/services/workflows.py"
+      ],
+      "note": "All seven node types are mapped. Python expression dialect and Go-specific syntax differences are listed in SOURCE_PARITY_AUDIT.md; YAML yes/no names are preserved."
+    },
+    {
+      "go_file": "backend/internal/workflow/engine.go",
+      "sha256": "6014ca8abfbc9eeee1a7e7a603dd146a60118a320a1ef7b0f779df245968e50d",
+      "declarations": [
+        "New",
+        "Run",
+        "Resume",
+        "drive",
+        "node",
+        "executeNode",
+        "runLLM",
+        "runTool",
+        "runKB",
+        "runParallel",
+        "runSubflow",
+        "evalExpr",
+        "snapshot"
+      ],
+      "classification": "runtime_or_contract",
+      "python_files": [
+        "backend/app/agents/workflow.py",
+        "backend/app/services/workflows.py"
+      ],
+      "note": ""
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import jwt
+from sqlalchemy import func, insert, select, text
 
 from app import models as t
 from app.core.errors import ServiceError
@@ -10,9 +11,25 @@ def public_user(user):
 
 
 async def register(rt, body):
-    user = await rt.db.add(
-        t.users, {**body.model_dump(exclude={"password"}), "password_hash": passwords.hash(body.password)}
-    )
+    async with rt.db.engine.begin() as conn:
+        # Coordinate registration with seed so concurrent first accounts cannot both be admins.
+        await conn.execute(text("SELECT pg_advisory_xact_lock(7171717)"))
+        count = await conn.scalar(select(func.count()).select_from(t.users))
+        user = (
+            (
+                await conn.execute(
+                    insert(t.users)
+                    .values(
+                        **body.model_dump(exclude={"password"}),
+                        password_hash=passwords.hash(body.password),
+                        role="user" if count else "admin",
+                    )
+                    .returning(t.users)
+                )
+            )
+            .mappings()
+            .one()
+        )
     return public_user(user)
 
 
@@ -31,7 +48,7 @@ async def refresh(rt, body):
 
 
 async def logout(rt, user):
-    await rt.redis.delete(f"nx:refresh:{user['id']}")
+    await rt.redis.delete(f"{rt.cfg.redis_namespace}:refresh:{user['id']}")
     return None
 
 

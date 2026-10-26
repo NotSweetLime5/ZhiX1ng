@@ -3,11 +3,11 @@ name: nexus-agent-python
 services:
   postgres:
     image: postgres:16-alpine
-    environment: {POSTGRES_USER: nexus, POSTGRES_PASSWORD: nexus123, POSTGRES_DB: nexus_agent}
+    environment: {POSTGRES_USER: nexus, POSTGRES_PASSWORD: nexus123, POSTGRES_DB: zhixing_python}
     ports: ["127.0.0.1:5439:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nexus -d nexus_agent"]
+      test: ["CMD-SHELL", "pg_isready -U nexus -d zhixing_python"]
       interval: 5s
       retries: 20
   redis:
@@ -38,30 +38,76 @@ services:
     ports: ["127.0.0.1:11435:11434"]
     volumes: ["ollamadata:/root/.ollama"]
   searxng:
+    restart: unless-stopped
     image: searxng/searxng:latest
     profiles: [search]
     ports: ["127.0.0.1:8083:8080"]
     volumes: ["./backend/deployments/searxng/settings.yml:/etc/searxng/settings.yml:ro"]
   api:
+    restart: unless-stopped
     build: {context: ./backend}
     profiles: [app]
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
     ports: ["127.0.0.1:8080:8080"]
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock", "./backend/data/files:/app/data/files"]
     env_file: [./backend/.env]
     environment: &app-env
-      NX_DATABASE_URL: postgresql+asyncpg://nexus:nexus123@postgres:5432/nexus_agent
+      NX_DATABASE_URL: postgresql+asyncpg://nexus:nexus123@postgres:5432/zhixing_python
       NX_REDIS_URL: redis://redis:6379/0
       NX_MILVUS_URI: http://milvus:19530
+      NX_MILVUS_DATABASE: zhixing_python
       NX_MINIO_ENDPOINT: minio:9000
       NX_SEARXNG_URL: http://searxng:8080/search
+      NX_OTEL_ENDPOINT: http://jaeger:4318
+      NO_PROXY: localhost,127.0.0.1,postgres,redis,milvus,minio,searxng,jaeger,mcp,a2a
     depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_started}, milvus: {condition: service_started}}
   worker:
+    restart: unless-stopped
     build: {context: ./backend}
     profiles: [app]
     command: ["python", "-m", "app.worker"]
     env_file: [./backend/.env]
     environment: *app-env
     depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_started}, milvus: {condition: service_started}}
+  a2a:
+    restart: unless-stopped
+    build: {context: ./backend}
+    profiles: [app]
+    command: ["python", "-m", "app.cli", "a2a", "--host", "0.0.0.0"]
+    ports: ["127.0.0.1:8082:8082"]
+    env_file: [./backend/.env]
+    environment: *app-env
+    depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_started}, milvus: {condition: service_started}}
+  mcp:
+    restart: unless-stopped
+    build: {context: ./backend}
+    profiles: [app]
+    command: ["python", "-m", "app.cli", "mcp", "--host", "0.0.0.0"]
+    ports: ["127.0.0.1:8086:8086"]
+    env_file: [./backend/.env]
+    environment: *app-env
+    depends_on: [searxng]
+  jaeger:
+    restart: unless-stopped
+    # Search and observation profiles are included by start.ps1 up.
+    image: jaegertracing/all-in-one:1.57
+    profiles: [obs]
+    environment: {COLLECTOR_OTLP_ENABLED: "true"}
+    ports: ["127.0.0.1:4318:4318", "127.0.0.1:16686:16686"]
+  prometheus:
+    restart: unless-stopped
+    image: prom/prometheus:v2.53.0
+    profiles: [obs]
+    ports: ["127.0.0.1:9090:9090"]
+    volumes: ["./backend/deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+  grafana:
+    restart: unless-stopped
+    image: grafana/grafana:11.1.0
+    profiles: [obs]
+    environment: {GF_SECURITY_ADMIN_PASSWORD: admin}
+    ports: ["127.0.0.1:3004:3000"]
+    volumes: ["grafanadata:/var/lib/grafana", "./backend/deployments/grafana/provisioning:/etc/grafana/provisioning:ro"]
 volumes:
   pgdata:
   redisdata:
@@ -69,3 +115,4 @@ volumes:
   etcddata:
   milvusdata:
   ollamadata:
+  grafanadata:

@@ -1,5 +1,5 @@
 /**
- * 认证域类型 —— 对应 model/auth.go 与 security/jwt.go。
+ * 认证域类型 —— 对应 app/models/auth.py 与 app/core/security.py。
  */
 
 /** 当前用户信息（GET /api/v1/me 返回字段） */

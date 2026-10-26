@@ -3,7 +3,7 @@
  *
  * 为什么不用 EventSource：浏览器原生 EventSource 只支持 GET，
  * 而对话是 POST + JSON body，因此用 fetch + ReadableStream 手动解析。
- * 帧格式与 handler_chat.go writeSSE 完全对齐：
+ * 帧格式与 app/services/chat.py 的 sse() 对齐：
  *
  *   event: <type>\n
  *   data: <json>\n

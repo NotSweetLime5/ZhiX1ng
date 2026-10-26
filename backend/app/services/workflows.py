@@ -46,8 +46,12 @@ async def get_workflow(rt, user, ident):
 
 async def update_workflow(rt, user, ident, body):
     current = await owned(rt, t.workflows, ident, user, "creator_id")
-    parse_dsl(body.dsl)
-    return await rt.db.change(t.workflows, ident, {**body.model_dump(), "version": current["version"] + 1})
+    values = body.model_dump(exclude_unset=True, exclude_none=True)
+    if "dsl" in values:
+        dsl = parse_dsl(values["dsl"])
+        values.setdefault("name", dsl["name"])
+        values.setdefault("description", dsl.get("desc", ""))
+    return await rt.db.change(t.workflows, ident, {**values, "version": current["version"] + 1})
 
 
 async def delete_workflow(rt, user, ident):

@@ -1,3 +1,5 @@
+from sqlalchemy import update
+
 from app import models as t
 
 
@@ -6,7 +8,22 @@ async def jobs(rt, user):
 
 
 async def retry_job(rt, user, ident):
-    job = await rt.db.get(t.jobs, ident)
-    if not job or job["status"] != "failed":
-        raise ValueError("只能重试失败任务")
-    return await rt.db.change(t.jobs, ident, {"status": "pending", "attempts": 0, "error": ""})
+    query = (
+        update(t.jobs)
+        .where(t.jobs.c.id == ident, t.jobs.c.status == "failed")
+        .values(
+            status="pending",
+            attempts=0,
+            error="",
+            lease_until=None,
+            stream_id="",
+            queue_revision=t.jobs.c.queue_revision + 1,
+            updated_at=t.now(),
+        )
+        .returning(t.jobs)
+    )
+    async with rt.db.engine.begin() as conn:
+        row = (await conn.execute(query)).mappings().first()
+        if not row:
+            raise ValueError("只能重试失败任务")
+        return dict(row)

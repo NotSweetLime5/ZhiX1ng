@@ -9,6 +9,7 @@ from app.models.jobs import jobs
 from app.models.knowledge import chunks, documents, kbs
 from app.models.llm import models, providers
 from app.models.memory import memories
+from app.models.sandbox import sandbox_executions
 from app.models.workflow import runs, steps, workflows
 
 __all__ = [
@@ -28,6 +29,7 @@ __all__ = [
     "documents",
     "chunks",
     "memories",
+    "sandbox_executions",
     "workflows",
     "runs",
     "steps",

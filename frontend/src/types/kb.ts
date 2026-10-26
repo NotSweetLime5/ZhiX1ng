@@ -1,5 +1,5 @@
 /**
- * 知识库域类型 —— 对应 model/rag.go。
+ * 知识库域类型 —— 对应 app/models/knowledge.py。
  */
 
 /** 文档 ETL 状态机 */

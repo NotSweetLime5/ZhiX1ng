@@ -10,6 +10,13 @@
 # test & coverage
 .coverage
 htmlcov/
+.pytest_cache/
+.ruff_cache/
+
+# Python environments & bytecode
+.venv/
+__pycache__/
+*.py[cod]
 
 # os
 .DS_Store
