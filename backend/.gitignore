@@ -1,0 +1,23 @@
+# local env & secrets
+*.local.yaml
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+
+# test & coverage
+.coverage
+htmlcov/
+
+# os
+.DS_Store
+
+# ide
+.idea/
+.vscode/
+
+# local runtime data
+*.db
+data/

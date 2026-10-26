@@ -1,0 +1,6 @@
+use_default_settings: true
+server:
+  secret_key: nexus-local-search-change-before-deployment
+  limiter: false
+search:
+  formats: [html, json]
