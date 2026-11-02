@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi.responses import Response
+from urllib.parse import quote
 
 from app.api.dependencies import Paging, current_user, runtime
 from app.api.responses import ok
@@ -47,6 +49,47 @@ async def delete_doc(ident: int, doc_id: int, user=Depends(current_user), rt=Dep
 @router.get("/documents/{ident}/chunks")
 async def list_chunks(ident: int, paging=Depends(Paging), user=Depends(current_user), rt=Depends(runtime)):
     return ok(await service.list_chunks(ident=ident, paging=paging.values, user=user, rt=rt))
+
+
+@router.get("/documents/{ident}")
+async def get_document(ident: int, user=Depends(current_user), rt=Depends(runtime)):
+    return ok(await service.get_document(rt, user, ident))
+
+
+@router.get("/documents/{ident}/content")
+async def document_content(ident: int, user=Depends(current_user), rt=Depends(runtime)):
+    doc, data = await service.document_content(rt, user, ident)
+    kind = doc["file_type"]
+    # HTML/Markdown are served as inert text, never executable user-controlled HTML.
+    media = (
+        "application/pdf"
+        if kind == "pdf"
+        else (
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            if kind == "docx"
+            else "text/plain; charset=utf-8"
+        )
+    )
+    disposition = "attachment" if kind == "docx" else "inline"
+    return Response(
+        data,
+        media_type=media,
+        headers={
+            "Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(doc['filename'], safe='')}",
+            "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store",
+        },
+    )
+
+
+@router.get("/chunks/{ident}/source")
+async def chunk_source(ident: int, user=Depends(current_user), rt=Depends(runtime)):
+    return ok(await service.chunk_source(rt, user, ident))
+
+
+@router.post("/documents/{ident}/retry")
+async def retry_document(ident: int, user=Depends(current_user), rt=Depends(runtime)):
+    return ok(await service.retry_document(rt, user, ident))
 
 
 @router.post("/kbs/{ident}/retrieve")

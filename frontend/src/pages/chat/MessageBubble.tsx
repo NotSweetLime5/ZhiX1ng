@@ -4,7 +4,7 @@
  * 2. 历史 assistant：Markdown 正文 + 引用角标 + 决策链（metadata.agent_trace）+ 用量脚注；
  * 3. 流式 assistant：与历史同构，内容由 SSE 增量驱动，正文带打字机光标。
  */
-import { memo, useEffect, useRef, type ReactNode } from 'react';
+import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { clsx } from 'clsx';
@@ -14,27 +14,39 @@ import type { TraceStep } from '@/types/chat';
 import type { StreamingMsg } from '@/stores/chat';
 import { Collapse, TraceTimeline, streamingToSteps } from './TraceTimeline';
 import { BrandMark } from '@/components/ui/Icon';
+import { SourceViewer, type SourceTarget } from '@/components/knowledge/SourceViewer';
 
 /* ---- 引用列表（refs 事件 / 消息 refs 字段） ---- */
 
-function RefsList({ refs }: { refs: { filename: string; page: number; content: string; score: number }[] }) {
+function RefsList({ refs }: { refs: NonNullable<Message['refs']> }) {
+  const [source, setSource] = useState<SourceTarget | null>(null);
   if (!refs?.length) return null;
   return (
-    <Collapse title={`引用来源`} badge={`${refs.length} 条`}>
-      <ul className="space-y-2">
-        {refs.map((r, i) => (
-          <li key={`${r.filename}-${i}`} className="rounded-md border border-smoke/50 bg-void/60 p-2 text-xs">
-            <div className="mb-1 flex items-center gap-2 text-fog">
-              <span className="font-mono text-lime">[{i + 1}]</span>
-              <span className="truncate">{r.filename}</span>
-              {r.page > 0 && <span className="text-ash">p.{r.page}</span>}
-              <span className="ml-auto tabular-nums text-ash">{r.score.toFixed(3)}</span>
-            </div>
-            <p className="line-clamp-3 leading-relaxed text-ash">{r.content}</p>
-          </li>
-        ))}
-      </ul>
-    </Collapse>
+    <>
+      <Collapse title={`引用来源`} badge={`${refs.length} 条`}>
+        <ul className="space-y-2">
+          {refs.map((r, i) => (
+            <li
+              key={`${r.filename}-${i}`}
+              className="rounded-md border border-smoke/50 bg-void/60 p-2 text-xs"
+            >
+              <button
+                className="mb-1 flex w-full items-center gap-2 text-left text-fog hover:text-bone"
+                onClick={() => setSource(r)}
+                aria-label={`查看来源 ${r.filename} 第${r.page}页`}
+              >
+                <span className="font-mono text-lime">[{i + 1}]</span>
+                <span className="truncate">{r.filename}</span>
+                {r.page > 0 && <span className="text-ash">p.{r.page}</span>}
+                <span className="ml-auto shrink-0 text-lime">查看原文 ↗</span>
+              </button>
+              <p className="line-clamp-3 leading-relaxed text-ash">{r.content}</p>
+            </li>
+          ))}
+        </ul>
+      </Collapse>
+      <SourceViewer source={source} onClose={() => setSource(null)} />
+    </>
   );
 }
 
@@ -44,10 +56,7 @@ function TraceCollapse({ steps }: { steps: TraceStep[] }) {
   if (!steps?.length) return null;
   const errCount = steps.filter((s) => s.status === 'error' || s.status === 'timeout').length;
   return (
-    <Collapse
-      title="决策链"
-      badge={`${steps.length} 步${errCount > 0 ? ` · ${errCount} 失败` : ''}`}
-    >
+    <Collapse title="决策链" badge={`${steps.length} 步${errCount > 0 ? ` · ${errCount} 失败` : ''}`}>
       <TraceTimeline steps={steps} />
     </Collapse>
   );
@@ -57,9 +66,7 @@ function TraceCollapse({ steps }: { steps: TraceStep[] }) {
 
 const MD_COMPONENTS = {
   // 代码块：设计系统风格
-  pre: ({ children }: { children?: ReactNode }) => (
-    <pre className="code-block my-2">{children}</pre>
-  ),
+  pre: ({ children }: { children?: ReactNode }) => <pre className="code-block my-2">{children}</pre>,
   a: ({ href, children }: { href?: string; children?: ReactNode }) => (
     <a href={href} target="_blank" rel="noreferrer" className="text-lime underline-offset-2 hover:underline">
       {children}
@@ -119,6 +126,7 @@ interface BubbleProps {
   /** 流式中的打字机光标 */
   streaming?: boolean;
   expert?: string;
+  status?: Message['status'];
 }
 
 export const MessageBubble = memo(function MessageBubble({
@@ -131,6 +139,7 @@ export const MessageBubble = memo(function MessageBubble({
   latencyMs,
   streaming,
   expert,
+  status,
 }: BubbleProps) {
   const isUser = role === 'user';
   const rootRef = useRef<HTMLDivElement>(null);
@@ -142,11 +151,12 @@ export const MessageBubble = memo(function MessageBubble({
   }, []);
 
   return (
-    <div
-      ref={rootRef}
-      className={clsx('flex w-full gap-3', isUser ? 'justify-end' : 'justify-start')}
-    >
-      {!isUser && <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-lime/20 bg-lime/10 text-lime"><BrandMark className="h-5 w-5" /></span>}
+    <div ref={rootRef} className={clsx('flex w-full gap-3', isUser ? 'justify-end' : 'justify-start')}>
+      {!isUser && (
+        <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-lime/20 bg-lime/10 text-lime">
+          <BrandMark className="h-5 w-5" />
+        </span>
+      )}
       <div
         className={clsx(
           'min-w-0 max-w-[88%] rounded-2xl border px-4 py-3 sm:px-5 sm:py-4',
@@ -156,9 +166,7 @@ export const MessageBubble = memo(function MessageBubble({
         )}
       >
         {/* 多智能体命中专家标记 */}
-        {!isUser && expert && (
-          <div className="mb-2 text-[10px] text-violet">⇢ 由「{expert}」处理</div>
-        )}
+        {!isUser && expert && <div className="mb-2 text-[10px] text-violet">⇢ 由「{expert}」处理</div>}
 
         {/* 正文 */}
         {content ? (
@@ -199,6 +207,11 @@ export const MessageBubble = memo(function MessageBubble({
           </div>
         )}
 
+        {!isUser && status && status !== 1 && (
+          <p className="mt-3 text-xs text-coral">
+            {status === 2 ? '回答已停止，以上内容可能不完整。' : '本次回答失败，以上为已保存的部分内容。'}
+          </p>
+        )}
         {/* 用量脚注 */}
         {!isUser && !streaming && (
           <UsageFoot
@@ -232,6 +245,7 @@ export function HistoryBubble({ msg }: { msg: Message }) {
               model: msg.model_name,
             }
       }
+      status={msg.status}
       latencyMs={msg.latency_ms}
     />
   );
@@ -256,6 +270,7 @@ export function StreamingBubble({ s }: { s: StreamingMsg }) {
           : undefined
       }
       streaming={s.status === 'streaming'}
+      status={s.status === 'stopped' ? 2 : s.status === 'error' ? 3 : 1}
       expert={s.expert}
     />
   );

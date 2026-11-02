@@ -81,15 +81,14 @@ function StepRow({ step }: { step: TraceStep }) {
         <span className={clsx('font-medium', failed ? 'text-coral' : 'text-mist')}>
           {LABEL[step.type] ?? step.type}
         </span>
-        {(step.tool || step.agent) && (
-          <span className="font-mono text-fog">{step.tool ?? step.agent}</span>
-        )}
+        {(step.tool || step.agent) && <span className="font-mono text-fog">{step.tool ?? step.agent}</span>}
         {step.elapsed_ms > 0 && (
           <span className={clsx('tabular-nums', failed ? 'text-coral/70' : 'text-ash')}>
             {step.elapsed_ms}ms
           </span>
         )}
         {running && <span className="animate-pulse text-lime">调用中…</span>}
+        {step.status === 'interrupted' && <span className="text-ash">已停止等待结果</span>}
         {failed && <span className="text-coral">✕ {step.status === 'timeout' ? '超时' : '失败'}</span>}
       </button>
 
@@ -122,10 +121,7 @@ export function TraceTimeline({ steps }: { steps: TraceStep[] }) {
 
 /** 供流式消息使用：把 tools map 转为 TraceStep 数组 */
 export function streamingToSteps(
-  tools: Record<
-    string,
-    { name: string; args: string; result?: string; ms?: number; status?: string }
-  >,
+  tools: Record<string, { name: string; args: string; result?: string; ms?: number; status?: string }>,
 ): TraceStep[] {
   return Object.entries(tools).map(([id, t], i) => ({
     seq: i,
@@ -151,15 +147,7 @@ function safeParse(s?: string): Record<string, unknown> | undefined {
 }
 
 /** 折叠容器：带 GSAP 展开动画（"思考过程"折叠区用） */
-export function Collapse({
-  title,
-  badge,
-  children,
-}: {
-  title: string;
-  badge?: string;
-  children: ReactNode;
-}) {
+export function Collapse({ title, badge, children }: { title: string; badge?: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const ref = useRefForExpand(open);
   return (

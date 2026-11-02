@@ -12,6 +12,7 @@
  * 关键坑：TCP 分包可能把一帧劈成两半，必须缓冲半帧（split 后 pop 留尾）。
  */
 import type { SSEEventType } from '@/types/chat';
+import { authenticatedFetch, errMsg } from './request';
 
 export interface SSEEvent {
   event: SSEEventType;
@@ -30,10 +31,10 @@ export interface StreamHandle {
  *
  * @param body   对话请求 {session_id?, agent_id?, content, model_config_id?}
  * @param onEvent 每解析出一个完整帧回调一次
- * @param token  access token（SSE 无法走 401 重放逻辑，需显式传入；
- *               调用方保证 token 新鲜——进入聊天页时已由请求层刷新过）
+ * Authentication is injected by the request layer. Only a 401 handshake is replayed;
+ * a partially consumed generation is never automatically retried.
  */
-export async function runChatStream(
+export function runChatStream(
   body: {
     session_id?: string;
     agent_id?: number;
@@ -41,8 +42,7 @@ export async function runChatStream(
     model_config_id?: number;
   },
   onEvent: (e: SSEEvent) => void,
-  token: string,
-): Promise<StreamHandle> {
+): StreamHandle {
   const controller = new AbortController();
   let resolveDone!: () => void;
   const done = new Promise<void>((r) => {
@@ -52,11 +52,10 @@ export async function runChatStream(
   // 流处理主体：独立异步任务，结束/异常时都 resolve done
   void (async () => {
     try {
-      const res = await fetch('/api/v1/chat/stream', {
+      const res = await authenticatedFetch('/api/v1/chat/stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(body),
         signal: controller.signal,
@@ -75,52 +74,46 @@ export async function runChatStream(
         return;
       }
 
-      const reader = res.body!.getReader();
+      if (!res.body) throw new Error('响应没有可读取的内容');
+      const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let buf = '';
-      // 终态事件（done/error）是否已送达：决定流结束后要不要补发"连接中断"
+      const parser = new SSEParser();
       let terminal = false;
-
-      for (;;) {
-        const { done: eof, value } = await reader.read();
-        if (eof) break;
-        buf += decoder.decode(value, { stream: true });
-
-        // 帧以空行分隔；最后一段可能是半帧，留到下一轮
-        const frames = buf.split('\n\n');
-        buf = frames.pop() ?? '';
-
-        for (const frame of frames) {
-          // 一个帧内 event: 与 data: 各一行（后端固定格式）
-          const event = frame.match(/^event: (.+)$/m)?.[1] ?? '';
-          const raw = frame.match(/^data: (.+)$/m)?.[1] ?? '{}';
-          if (!event) continue;
-          if (event === 'done' || event === 'error') terminal = true;
-          try {
-            onEvent({
-              event: event as SSEEventType,
-              data: JSON.parse(raw) as Record<string, unknown>,
-            });
-          } catch {
-            // 单帧 JSON 损坏不影响整个流，跳过
-          }
+      const dispatch = (text: string) => {
+        for (const event of parser.feed(text)) {
+          if (terminal || controller.signal.aborted) break;
+          onEvent(event);
+          if (event.event === 'done' || event.event === 'error') terminal = true;
         }
+      };
+      try {
+        while (!terminal && !controller.signal.aborted) {
+          const { done: eof, value } = await reader.read();
+          if (eof) {
+            dispatch(decoder.decode());
+            break;
+          }
+          dispatch(decoder.decode(value, { stream: true }));
+        }
+      } finally {
+        await reader.cancel().catch(() => undefined);
+        reader.releaseLock();
       }
 
       // 流结束但没等到 done/error 才算异常断开（此前无条件补发，
       // 导致每次正常回答完也弹"连接中断，回答可能不完整"）
-      if (!terminal) {
+      if (!terminal && !controller.signal.aborted) {
         onEvent({
           event: 'error',
           data: { code: -1, message: '连接中断，回答可能不完整，请重发' },
         });
       }
     } catch (e) {
-      // 用户主动中断：不作为错误，静默结束（部分内容不落库，以服务端为准）
-      if (!(e instanceof DOMException && e.name === 'AbortError')) {
+      // 用户主动停止：保留临时内容，由 store 等待服务端收尾并同步历史。
+      if (!controller.signal.aborted) {
         onEvent({
           event: 'error',
-          data: { code: -1, message: '网络异常，请检查后端服务' },
+          data: { code: -1, message: errMsg(e) },
         });
       }
     } finally {
@@ -129,4 +122,34 @@ export async function runChatStream(
   })();
 
   return { abort: () => controller.abort(), done };
+}
+
+/** Incremental SSE parser; retains split CRLF and UTF-8-decoded partial frames. */
+export class SSEParser {
+  private buffer = '';
+  feed(text: string): SSEEvent[] {
+    this.buffer += text;
+    const result: SSEEvent[] = [];
+    let boundary: RegExpExecArray | null;
+    while ((boundary = /\r?\n\r?\n/.exec(this.buffer))) {
+      const frame = this.buffer.slice(0, boundary.index);
+      this.buffer = this.buffer.slice(boundary.index + boundary[0].length);
+      let event = '';
+      const data: string[] = [];
+      for (const line of frame.split(/\r?\n/)) {
+        if (line.startsWith('event:')) event = line.slice(6).trim();
+        if (line.startsWith('data:')) data.push(line.slice(5).replace(/^ /, ''));
+      }
+      if (!event || !data.length) continue;
+      try {
+        const value: unknown = JSON.parse(data.join('\n'));
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          result.push({ event: event as SSEEventType, data: value as Record<string, unknown> });
+        }
+      } catch {
+        /* Malformed frames are not terminal acknowledgments. */
+      }
+    }
+    return result;
+  }
 }

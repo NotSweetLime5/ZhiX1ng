@@ -82,6 +82,87 @@ export class ApiError extends Error {
   }
 }
 
+/** Retry only a rejected authentication handshake, never a stream that already started. */
+export async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const send = () => {
+    const headers = new Headers(options.headers);
+    const token = getAccessToken();
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return fetch(url, { ...options, headers });
+  };
+  let res = await send();
+  if (res.status === 401) {
+    if (!(await refreshOnce())) {
+      onAuthExpired();
+      throw new ApiError(401, '登录已过期，请重新登录', 401);
+    }
+    options.signal?.throwIfAborted();
+    res = await send();
+  }
+  return res;
+}
+
+export async function requestBlob(path: string, signal?: AbortSignal): Promise<Blob> {
+  const res = await authenticatedFetch(`${BASE}${path}`, { signal });
+  if (!res.ok) {
+    const env = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, env.message || '无法读取原文件', res.status);
+  }
+  return res.blob();
+}
+
+/** Browser upload progress describes transmitted bytes; ETL has its own server status. */
+export async function uploadWithProgress<T>(
+  path: string,
+  form: FormData,
+  progress: (percent: number) => void,
+  signal?: AbortSignal,
+): Promise<T> {
+  const send = () =>
+    new Promise<T>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const abort = () => xhr.abort();
+      if (signal?.aborted) {
+        reject(new DOMException('已取消', 'AbortError'));
+        return;
+      }
+      xhr.open('POST', `${BASE}${path}`);
+      xhr.timeout = 120_000;
+      const token = getAccessToken();
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      signal?.addEventListener('abort', abort, { once: true });
+      xhr.onloadend = () => signal?.removeEventListener('abort', abort);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) progress(Math.round((e.loaded / e.total) * 100));
+      };
+      xhr.onerror = () => reject(new Error('上传连接中断，请先刷新文档列表确认是否已收到文件'));
+      xhr.ontimeout = () => reject(new Error('上传超时，请先确认文档列表后再决定是否重传'));
+      xhr.onabort = () => reject(new DOMException('已取消上传', 'AbortError'));
+      xhr.onload = () => {
+        try {
+          const env = JSON.parse(xhr.responseText) as Envelope<T>;
+          if (xhr.status < 200 || xhr.status >= 300 || env.code !== 0) {
+            reject(new ApiError(env.code || xhr.status, env.message || '上传失败', xhr.status));
+          } else resolve(env.data as T);
+        } catch {
+          reject(new Error('上传响应异常，请刷新文档列表确认结果'));
+        }
+      };
+      xhr.send(form);
+    });
+  try {
+    return await send();
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401) throw error;
+    if (!(await refreshOnce())) {
+      onAuthExpired();
+      throw error;
+    }
+    signal?.throwIfAborted();
+    return send();
+  }
+}
+
 /* ---- 核心请求 ---- */
 
 interface RequestOptions {
@@ -113,10 +194,7 @@ function buildQuery(query?: RequestOptions['query']): string {
  * 统一请求函数。
  * @returns data 字段内容（包络已拆开）
  */
-export async function request<T>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<T> {
+export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, query, retry401 = true, formData, signal } = options;
 
   const headers: Record<string, string> = {};
@@ -131,10 +209,7 @@ export async function request<T>(
     payload = JSON.stringify(body);
   }
 
-  const res = await fetch(
-    `${BASE}${path}${buildQuery(query)}`,
-    { method, headers, body: payload, signal },
-  );
+  const res = await fetch(`${BASE}${path}${buildQuery(query)}`, { method, headers, body: payload, signal });
 
   // 401 → 静默刷新并重放一次（仅带凭证的业务请求）
   if (res.status === 401 && retry401) {
@@ -163,15 +238,11 @@ export async function request<T>(
 /* ---- 语义化快捷方法 ---- */
 
 export const http = {
-  get: <T>(path: string, query?: RequestOptions['query']) =>
-    request<T>(path, { method: 'GET', query }),
-  post: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: 'POST', body }),
-  put: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: 'PUT', body }),
+  get: <T>(path: string, query?: RequestOptions['query']) => request<T>(path, { method: 'GET', query }),
+  post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body }),
+  put: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PUT', body }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
-  upload: <T>(path: string, formData: FormData) =>
-    request<T>(path, { method: 'POST', formData }),
+  upload: <T>(path: string, formData: FormData) => request<T>(path, { method: 'POST', formData }),
 };
 
 /** 从 ApiError 提取可展示文案 */

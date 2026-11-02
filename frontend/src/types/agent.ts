@@ -5,6 +5,7 @@
 /** Agent 配置（host 路由聚合 / expert 专项执行） */
 export interface Agent {
   id: number;
+  creator_id?: number;
   name: string;
   description: string;
   /** host / expert */
@@ -31,9 +32,7 @@ export interface Agent {
 }
 
 /** 创建/更新 Agent 请求（partial 即可，后端整对象绑定） */
-export type AgentReq = Partial<
-  Omit<Agent, 'id' | 'created_at' | 'updated_at' | 'is_preset'>
->;
+export type AgentReq = Partial<Omit<Agent, 'id' | 'created_at' | 'updated_at' | 'is_preset'>>;
 
 /** 工具（builtin / mcp / custom） */
 export interface Tool {

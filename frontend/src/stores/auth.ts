@@ -8,6 +8,7 @@
  */
 import { create } from 'zustand';
 import { bindAuthHooks, http } from '@/lib/request';
+import { useChat } from '@/stores/chat';
 import type { LoginReq, RegisterReq, TokenPair, User } from '@/types/auth';
 
 interface AuthState {
@@ -53,6 +54,7 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   login: async (req) => {
+    useChat.getState().reset();
     const pair = await http.post<TokenPair>('/auth/login', req);
     localStorage.setItem(REFRESH_KEY, pair.refresh_token);
     set({ accessToken: pair.access_token });
@@ -65,6 +67,7 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    useChat.getState().reset();
     try {
       await http.post('/auth/logout');
     } finally {
@@ -76,6 +79,7 @@ export const useAuth = create<AuthState>((set) => ({
   setToken: (token) => set({ accessToken: token }),
 
   expire: () => {
+    useChat.getState().reset();
     localStorage.removeItem(REFRESH_KEY);
     set({ accessToken: undefined, user: undefined });
   },

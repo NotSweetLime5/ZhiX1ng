@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy import insert, select, update
+from minio.error import S3Error
 
 from app import models as t
 from app.core.errors import ServiceError
@@ -95,6 +96,89 @@ async def list_chunks(rt, user, ident, paging):
         raise ServiceError(404, "文档不存在")
     await owned(rt, t.kbs, doc["kb_id"], user)
     return await rt.db.paged(t.chunks, t.chunks.c.document_id == ident, **paging)
+
+
+async def get_document(rt, user, ident):
+    doc = await rt.db.get(t.documents, ident, t.documents.c.status != "deleted")
+    if not doc:
+        raise ServiceError(404, "文档已删除或不存在")
+    kb = await owned(rt, t.kbs, doc["kb_id"], user)
+    if kb["status"] != "active":
+        raise ServiceError(404, "知识库已删除")
+    return doc
+
+
+async def document_content(rt, user, ident):
+    doc = await get_document(rt, user, ident)
+    try:
+        data = await rt.objects.get(doc["object_key"])
+    except S3Error as exc:
+        if exc.code in {"NoSuchKey", "NoSuchObject"}:
+            raise ServiceError(404, "原文件已不可用") from exc
+        raise
+    return doc, data
+
+
+async def chunk_source(rt, user, ident):
+    chunk = await rt.db.get(t.chunks, ident)
+    if not chunk:
+        raise ServiceError(404, "引用内容已删除或不存在")
+    doc = await get_document(rt, user, chunk["document_id"])
+    return {
+        "chunk_id": chunk["id"],
+        "document_id": doc["id"],
+        "kb_id": doc["kb_id"],
+        "filename": doc["filename"],
+        "file_type": doc["file_type"],
+        "page": chunk["meta"].get("page", 1),
+        "content": chunk["content"],
+    }
+
+
+async def retry_document(rt, user, ident):
+    await get_document(rt, user, ident)
+    async with rt.db.engine.begin() as conn:
+        # A short row lock serializes retry clicks without blocking on long ETL work.
+        doc = (
+            (await conn.execute(select(t.documents).where(t.documents.c.id == ident).with_for_update()))
+            .mappings()
+            .first()
+        )
+        if not doc or doc["status"] != "failed":
+            raise ServiceError(409, "仅可重试处理失败的文档，请刷新查看最新状态")
+        if not await conn.scalar(
+            select(t.kbs.c.id).where(
+                t.kbs.c.id == doc["kb_id"],
+                t.kbs.c.user_id == user["id"],
+                t.kbs.c.status == "active",
+            )
+        ):
+            raise ServiceError(404, "知识库已删除或不可访问")
+        active = await conn.scalar(
+            select(t.jobs.c.id)
+            .where(
+                t.jobs.c.kind == "doc_etl",
+                t.jobs.c.payload["doc_id"].as_integer() == ident,
+                t.jobs.c.status.in_(["pending", "running"]),
+            )
+            .limit(1)
+        )
+        if active:
+            raise ServiceError(409, "该文档已有处理任务")
+        await conn.execute(insert(t.jobs).values(kind="doc_etl", payload={"doc_id": ident}))
+        row = (
+            (
+                await conn.execute(
+                    update(t.documents)
+                    .where(t.documents.c.id == ident)
+                    .values(status="pending", error="", updated_at=t.now())
+                    .returning(t.documents)
+                )
+            )
+            .mappings()
+            .one()
+        )
+    return dict(row)
 
 
 async def retrieve_post(rt, user, ident, body):

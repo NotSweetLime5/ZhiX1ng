@@ -1,28 +1,9 @@
-/**
- * 对话状态机 —— 前端的心脏。
- *
- * 职责：
- * 1. 会话列表管理（以服务端为唯一事实源，流结束后重新拉取）；
- * 2. SSE 流式渲染：12 种事件 → UI 状态（与 FastAPI 对话事件协议对应）；
- * 3. 中断（abort）、重发（同一 session 再发一条）。
- *
- * 设计要点（ep19 走读 2 的映射表即本文件的事件分支）：
- * - meta       建气泡占位，记录 session_id；
- * - reasoning  折叠区灰字逐字上屏；
- * - plan       计划卡片逐条勾选；
- * - tool_call  决策链时间线追加"调用中"节点；
- * - tool_result节点回填结果与耗时；
- * - agent_event多智能体委派动效；
- * - refs       引用角标数据；
- * - usage      成本角标；
- * - delta      打字机正文；
- * - done/error 终态：解禁输入框；error 显示重试条。
- */
+/** Each stream owns its view generation; old callbacks cannot mutate a new session. */
 import { create } from 'zustand';
 import { runChatStream, type StreamHandle } from '@/lib/sse';
 import { deleteSession, listMessages, listSessions, renameSession as renameApi } from '@/api/chat';
 import { toast } from '@/stores/ui';
-import { useAuth } from '@/stores/auth';
+import { errMsg } from '@/lib/request';
 import type {
   AgentEventData,
   Message,
@@ -34,92 +15,144 @@ import type {
   UsageData,
 } from '@/types/chat';
 
-/** 正在流式生成的助手消息（done 后由服务端 messages 替换） */
 export interface StreamingMsg {
   sessionId: string;
   content: string;
   reasoning: string;
   plan?: PlanData;
-  /** tool_call.id → 节点（call 与 result 按 id 配对） */
   tools: Record<string, ToolCallData & Partial<ToolResultData>>;
   agentEvents: AgentEventData[];
   refs: RAGRef[];
   usage?: UsageData;
-  /** streaming / done / error */
-  status: 'streaming' | 'done' | 'error';
+  status: 'streaming' | 'done' | 'error' | 'stopped';
   errorMessage?: string;
-  /** meta.expert：多智能体命中专家 */
   expert?: string;
 }
-
+interface Attempt {
+  content: string;
+  agentId?: number;
+  modelId?: number;
+}
 interface ChatState {
   sessions: Session[];
   sessionsTotal: number;
-  /** 当前会话（undefined = 新对话） */
   activeSessionId?: string;
-  /** 历史消息（服务端事实源） */
   messages: Message[];
-  /** 流式中的消息（null = 空闲） */
   streaming: StreamingMsg | null;
-  /** 对话中的 Agent（undefined = 平台默认） */
   activeAgentId?: number;
-  /** 本次发送使用的模型（对话页选择器；undefined = 沿用 Agent 绑定模型） */
   activeModelId?: number;
-
+  loadingMessages: boolean;
+  sending: boolean;
+  error?: string;
+  retryAttempt?: Attempt;
   loadSessions: () => Promise<void>;
   selectSession: (id: string) => Promise<void>;
   newSession: () => void;
+  reset: () => void;
   setActiveAgent: (id?: number) => void;
   setActiveModel: (id?: number) => void;
   send: (content: string) => Promise<void>;
+  retry: () => Promise<void>;
   stop: () => void;
+  refreshMessages: () => Promise<void>;
   renameSession: (id: string, title: string) => Promise<void>;
   removeSession: (id: string) => Promise<void>;
-  /** 消息列表页"记住这次对话"后调用方自行刷新 */
 }
-
-let handle: StreamHandle | null = null;
+let generation = 0;
+let sessionListRequest = 0;
+interface Run {
+  generation: number;
+  sessionId?: string;
+  userMessageId?: number;
+  stopped: boolean;
+  handle?: StreamHandle;
+  finished: Promise<void>;
+}
+let activeRun: Run | null = null;
+const pending = new Map<string, Promise<void>>();
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export const useChat = create<ChatState>((set, get) => ({
   sessions: [],
   sessionsTotal: 0,
-  activeSessionId: undefined,
   messages: [],
   streaming: null,
-  activeAgentId: undefined,
-  activeModelId: undefined,
-
+  loadingMessages: false,
+  sending: false,
   loadSessions: async () => {
-    const page = await listSessions({ page: 1, page_size: 100 });
-    set({ sessions: page.list, sessionsTotal: page.total });
+    const request = ++sessionListRequest;
+    try {
+      const page = await listSessions({ page: 1, page_size: 100 });
+      if (request === sessionListRequest) set({ sessions: page.list, sessionsTotal: page.total });
+    } catch (e) {
+      if (request === sessionListRequest) toast.err(errMsg(e));
+    }
   },
-
-  /** 切换会话：拉历史全量渲染（幂等 —— 服务端消息列表是唯一事实源） */
   selectSession: async (id) => {
-    if (get().streaming) get().stop();
-    set({ activeSessionId: id, messages: [], streaming: null });
-    const msgs = await listMessages(id);
-    set({ messages: msgs });
+    const mine = ++generation;
+    activeRun?.handle?.abort();
+    activeRun = null;
+    const session = get().sessions.find((s) => s.id === id);
+    set({
+      activeSessionId: id,
+      activeAgentId: session?.agent_id ?? undefined,
+      activeModelId: undefined,
+      messages: [],
+      streaming: null,
+      loadingMessages: true,
+      sending: false,
+      error: undefined,
+      retryAttempt: undefined,
+    });
+    try {
+      await pending.get(id);
+      const messages = await listMessages(id);
+      if (generation === mine) set({ messages });
+    } catch (e) {
+      if (generation === mine) set({ error: errMsg(e) });
+    } finally {
+      if (generation === mine) set({ loadingMessages: false });
+    }
   },
-
-  /** 开新对话：清空当前上下文 */
   newSession: () => {
-    if (get().streaming) get().stop();
-    set({ activeSessionId: undefined, messages: [], streaming: null });
+    ++generation;
+    activeRun?.handle?.abort();
+    activeRun = null;
+    set({
+      activeSessionId: undefined,
+      messages: [],
+      streaming: null,
+      loadingMessages: false,
+      sending: false,
+      error: undefined,
+      retryAttempt: undefined,
+    });
   },
-
+  reset: () => {
+    get().newSession();
+    ++sessionListRequest;
+    set({ sessions: [], sessionsTotal: 0, activeAgentId: undefined, activeModelId: undefined });
+  },
   setActiveAgent: (id) => set({ activeAgentId: id }),
-
   setActiveModel: (id) => set({ activeModelId: id }),
-
-  /** 发送一条消息并消费 SSE 流 */
   send: async (content) => {
-    if (get().streaming) return; // 流式中禁止并发发送
-
-    // 乐观插入用户消息（服务端确认以 done 后的 reload 为准）
+    content = content.trim();
+    if (!content || activeRun || get().loadingMessages) return;
+    const attempt: Attempt = { content, agentId: get().activeAgentId, modelId: get().activeModelId };
+    let finish!: () => void;
+    const run: Run = {
+      generation: ++generation,
+      sessionId: get().activeSessionId,
+      stopped: false,
+      finished: new Promise<void>((resolve) => {
+        finish = resolve;
+      }),
+    };
+    activeRun = run;
+    const current = () => activeRun === run && generation === run.generation;
     const optimistic: Message = {
       id: -Date.now(),
-      session_id: get().activeSessionId ?? '',
+      session_id: run.sessionId ?? '',
       role: 'user',
       content,
       prompt_tokens: 0,
@@ -130,64 +163,132 @@ export const useChat = create<ChatState>((set, get) => ({
       trace_id: '',
       created_at: new Date().toISOString(),
     };
-    set((s) => ({ messages: [...s.messages, optimistic], streaming: emptyStreaming() }));
-
-    const token = useAuth.getState().accessToken ?? '';
-    const h = await runChatStream(
-      { session_id: get().activeSessionId, agent_id: get().activeAgentId, content, model_config_id: get().activeModelId },
-      (ev) => {
-        // 每个事件 → 不可变状态更新
-        set((s) => (s.streaming ? { streaming: reduce(s.streaming, ev.event, ev.data) } : s));
-      },
-      token,
-    );
-    handle = h;
-    await h.done; // 等流结束（done/error/中断 都会 resolve）
-
-    // 收尾：以服务端为准刷新事实源
-    const finalStatus = get().streaming?.status;
-    if (finalStatus === 'error') {
-      toast.err(get().streaming?.errorMessage ?? '对话失败');
-    }
-    handle = null;
-    // 首轮对话时 activeSessionId 为空，从 meta 事件里拿服务端分配的会话 ID
-    const sid = get().activeSessionId ?? get().streaming?.sessionId;
-    set({ streaming: null, ...(sid ? { activeSessionId: sid } : {}) });
-    if (sid) {
-      // 会话标题/条数/消息内容都可能已变，全部重拉
-      const [msgs, sessions] = await Promise.all([
-        listMessages(sid),
-        listSessions({ page: 1, page_size: 100 }),
-      ]);
-      set({ messages: msgs, sessions: sessions.list, sessionsTotal: sessions.total });
-    } else {
-      await get().loadSessions();
+    set((s) => ({
+      messages: [...s.messages.filter((m) => m.id > 0), optimistic],
+      streaming: emptyStreaming(),
+      sending: true,
+      error: undefined,
+      retryAttempt: undefined,
+    }));
+    try {
+      if (run.sessionId) await pending.get(run.sessionId);
+      if (!current() || run.stopped) return;
+      if (run.sessionId) pending.set(run.sessionId, run.finished);
+      run.handle = runChatStream(
+        { session_id: run.sessionId, agent_id: attempt.agentId, model_config_id: attempt.modelId, content },
+        (ev) => {
+          if (ev.event === 'meta') {
+            run.sessionId = String(ev.data.session_id);
+            run.userMessageId = Number(ev.data.message_id);
+            pending.set(run.sessionId, run.finished);
+          }
+          if (!current() || run.stopped) return;
+          set((s) => ({
+            ...(ev.event === 'meta' ? { activeSessionId: run.sessionId } : {}),
+            streaming: s.streaming ? reduce(s.streaming, ev.event, ev.data) : null,
+          }));
+        },
+      );
+      await run.handle.done;
+      // An abort closes fetch before the backend's finally necessarily commits.
+      // Wait for the assistant after this user id, never replace a new view's state.
+      const final = current() ? get().streaming : null;
+      if (final?.status === 'error') set({ error: final.errorMessage, retryAttempt: attempt });
+      let rows: Message[] | undefined;
+      if (run.sessionId) {
+        for (let i = 0; i < 12; i++) {
+          rows = await listMessages(run.sessionId);
+          if (!run.userMessageId || rows.some((m) => m.role === 'assistant' && m.id > run.userMessageId!))
+            break;
+          rows = undefined;
+          await delay(250);
+        }
+        if (!rows) throw new Error('回答已停止，但历史记录尚未同步。请稍后刷新；不会自动重新执行工具。');
+        if (current()) set({ messages: rows, streaming: null });
+        if (current()) await get().loadSessions();
+      } else if (current()) {
+        // No meta: keep the failed/stopped local attempt visible and retryable.
+        set({ retryAttempt: attempt });
+      }
+    } catch (e) {
+      if (current()) set({ error: errMsg(e), retryAttempt: attempt });
+    } finally {
+      if (current()) {
+        const state = get().streaming;
+        if (state)
+          set({
+            streaming: {
+              ...state,
+              status: run.stopped ? 'stopped' : 'error',
+              tools: Object.fromEntries(
+                Object.entries(state.tools).map(([id, tool]) => [
+                  id,
+                  { ...tool, status: tool.status ?? 'interrupted' },
+                ]),
+              ),
+            },
+          });
+        set({ sending: false });
+        activeRun = null;
+      }
+      finish();
+      if (run.sessionId && pending.get(run.sessionId) === run.finished) pending.delete(run.sessionId);
     }
   },
-
-  /** 用户中断：abort 后流处理会兜底 error 事件，走统一的收尾逻辑 */
   stop: () => {
-    handle?.abort();
+    const run = activeRun;
+    if (!run) return;
+    run.stopped = true;
+    run.handle?.abort();
+    set((s) => ({
+      streaming: s.streaming
+        ? {
+            ...s.streaming,
+            status: 'stopped',
+            tools: Object.fromEntries(
+              Object.entries(s.streaming.tools).map(([id, t]) => [
+                id,
+                { ...t, status: t.status ?? 'interrupted' },
+              ]),
+            ),
+          }
+        : null,
+    }));
   },
-
+  retry: async () => {
+    const attempt = get().retryAttempt;
+    if (!attempt || activeRun) return;
+    set({ streaming: null, activeAgentId: attempt.agentId, activeModelId: attempt.modelId });
+    await get().send(attempt.content);
+  },
+  refreshMessages: async () => {
+    const sid = get().activeSessionId;
+    if (sid) await get().selectSession(sid);
+    else set({ streaming: null, error: undefined });
+  },
   renameSession: async (id, title) => {
-    await renameApi(id, title);
-    set((s) => ({
-      sessions: s.sessions.map((x) => (x.id === id ? { ...x, title } : x)),
-    }));
+    try {
+      await renameApi(id, title);
+      set((s) => ({ sessions: s.sessions.map((x) => (x.id === id ? { ...x, title } : x)) }));
+    } catch (e) {
+      toast.err(errMsg(e));
+    }
   },
-
   removeSession: async (id) => {
-    await deleteSession(id);
-    set((s) => ({
-      sessions: s.sessions.filter((x) => x.id !== id),
-      activeSessionId: s.activeSessionId === id ? undefined : s.activeSessionId,
-      messages: s.activeSessionId === id ? [] : s.messages,
-    }));
+    try {
+      if (get().activeSessionId === id) get().newSession();
+      await pending.get(id);
+      await deleteSession(id);
+      set((s) => ({
+        sessions: s.sessions.filter((x) => x.id !== id),
+        sessionsTotal: Math.max(0, s.sessionsTotal - 1),
+      }));
+    } catch (e) {
+      toast.err(errMsg(e));
+    }
   },
 }));
 
-/** 新建流式消息骨架 */
 function emptyStreaming(): StreamingMsg {
   return {
     sessionId: '',
@@ -201,11 +302,7 @@ function emptyStreaming(): StreamingMsg {
 }
 
 /** SSE 事件归约器：单事件 → 新状态（不可变） */
-function reduce(
-  cur: StreamingMsg,
-  event: string,
-  data: Record<string, unknown>,
-): StreamingMsg {
+export function reduce(cur: StreamingMsg, event: string, data: Record<string, unknown>): StreamingMsg {
   switch (event) {
     case 'meta':
       return {
@@ -239,7 +336,11 @@ function reduce(
     }
 
     case 'agent_event':
-      return { ...cur, agentEvents: [...cur.agentEvents, data as unknown as AgentEventData] };
+      return {
+        ...cur,
+        expert: data.type === 'delegate' ? String(data.expert ?? '') : cur.expert,
+        agentEvents: [...cur.agentEvents, data as unknown as AgentEventData],
+      };
 
     case 'refs':
       return { ...cur, refs: (data.items as RAGRef[]) ?? [] };
