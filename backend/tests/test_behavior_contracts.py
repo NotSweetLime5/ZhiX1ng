@@ -1,4 +1,4 @@
-"""Behavior checks against chengpeng-cp/nexus-agent at 5c7b81e, beyond route counts."""
+"""Behavioral contracts for authentication, tools, workers and model routing."""
 
 import asyncio
 import json
@@ -21,6 +21,23 @@ from app.services.llm import CircuitBreaker, Descriptor, Gateway
 from app.services.tools import Tools
 from app.worker import process
 from conftest import ScriptedModel
+
+
+def test_application_environment_overrides_dotenv_without_losing_secrets(monkeypatch, tmp_path):
+    env = tmp_path / "settings.env"
+    env.write_text(
+        "ZHIXING_DEFAULT_CHAT=file-model\n"
+        "ZHIXING_JWT_SECRET=jwt-kept-from-file\n"
+        "ZHIXING_SECRET_KEY=encryption-kept-from-file\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("ZHIXING_DEFAULT_CHAT", "process-model")
+    monkeypatch.delenv("ZHIXING_JWT_SECRET", raising=False)
+    monkeypatch.delenv("ZHIXING_SECRET_KEY", raising=False)
+    cfg = Settings(_env_file=env)
+    assert cfg.default_chat == "process-model"
+    assert cfg.jwt_secret == "jwt-kept-from-file"
+    assert cfg.secret_key == "encryption-kept-from-file"
 
 
 @pytest.mark.parametrize("password", ["admin123", "replace-with-an-admin-password"])
@@ -76,7 +93,7 @@ async def test_refresh_rotation_rejects_replay_and_concurrent_reuse(rt, client):
         ("bad @example.com", "a-long-test-password"),
     ],
 )
-async def test_registration_rejects_inputs_rejected_by_upstream(client, email, password):
+async def test_registration_rejects_invalid_inputs(client, email, password):
     response = await client.post(
         "/api/v1/auth/register", json={"username": "new_user", "email": email, "password": password}
     )
@@ -105,7 +122,7 @@ async def test_workflow_partial_updates_preserve_dsl_and_false_values(rt, client
 
 
 @pytest.mark.parametrize("legacy", [True, False])
-async def test_a2a_delegation_accepts_upstream_go_and_modern_task_shapes(rt, client, monkeypatch, legacy):
+async def test_a2a_delegation_accepts_text_and_object_task_status(rt, client, monkeypatch, legacy):
     remote = await rt.db.add(
         t.a2a_agents,
         {"name": "remote", "base_url": "http://remote.test", "card": {"url": "http://remote.test/a2a"}},
@@ -113,7 +130,7 @@ async def test_a2a_delegation_accepts_upstream_go_and_modern_task_shapes(rt, cli
 
     def respond(request):
         message = json.loads(request.content)["params"]["message"]
-        assert message["parts"][0]["type"] == "text"  # Original Go's Part struct.
+        assert message["parts"][0]["type"] == "text"
         assert message["parts"][0]["kind"] == "text"  # A2A 0.3 text part.
         assert message["parts"][0]["text"] == "question"
         return httpx.Response(
@@ -336,7 +353,7 @@ async def test_worker_processes_upload_into_retrievable_document(rt, client):
     doc = (
         await client.post(
             f"/api/v1/kbs/{kb['id']}/documents",
-            files={"file": ("worker.txt", b"Python migration keeps document indexing and retrieval.")},
+            files={"file": ("worker.txt", b"Document indexing and retrieval remain available.")},
         )
     ).json()["data"]
     job = (
@@ -426,11 +443,11 @@ async def test_workflow_approval_resumes_with_new_runtime(rt):
         await restarted.close()
 
 
-async def test_legacy_tool_code_binding_can_create_and_run_agent(rt, client):
+async def test_tool_code_binding_can_create_and_run_agent(rt, client):
     created = await client.post(
         "/api/v1/agents",
         json={
-            "name": "legacy bindings",
+            "name": "code-only bindings",
             "model_config_id": rt.test_model["id"],
             "tools": [{"tool_code": "calculator"}],
         },
@@ -579,7 +596,7 @@ async def test_hybrid_failure_falls_back_to_dense_with_same_user_filter():
     assert await vectors.search("kb", [1, 0], "query", "user_id == 7") == [{"id": 42, "distance": 0.9}]
 
 
-def test_python_migration_refuses_go_database_without_changing_its_data(isolated_services):
+def test_schema_initialization_rejects_incompatible_database_without_changing_data(isolated_services):
     import psycopg
     from psycopg import sql
     from sqlalchemy.engine import make_url
@@ -602,7 +619,7 @@ def test_python_migration_refuses_go_database_without_changing_its_data(isolated
                 cwd=Path(__file__).parents[1],
                 env={
                     **os.environ,
-                    "NX_DATABASE_URL": legacy_url.render_as_string(hide_password=False),
+                    "ZHIXING_DATABASE_URL": legacy_url.render_as_string(hide_password=False),
                     "PYTHONIOENCODING": "utf-8",
                 },
                 capture_output=True,
@@ -610,7 +627,7 @@ def test_python_migration_refuses_go_database_without_changing_its_data(isolated
                 encoding="utf-8",
                 timeout=60,
             )
-            assert result.returncode != 0 and "Go" in result.stderr and "Python" in result.stderr
+            assert result.returncode != 0 and "不兼容" in result.stderr and "未更改" in result.stderr
             with psycopg.connect(
                 legacy_url.set(drivername="postgresql").render_as_string(hide_password=False)
             ) as legacy:

@@ -11,16 +11,17 @@ function Check-Exit {
 
 switch ($Action) {
     'setup' {
-        Set-Location -LiteralPath $projectRoot
-        docker compose --profile search --profile obs up -d postgres redis minio etcd milvus searxng jaeger prometheus grafana
-        Check-Exit
-        docker build -f backend/deployments/sandbox.Dockerfile -t nexus-python-sandbox:local backend
-        Check-Exit
         Set-Location -LiteralPath (Join-Path $projectRoot 'backend')
         uv sync --frozen
         Check-Exit
         uv run python -c "from pathlib import Path; import secrets; p=Path('.env'); t=Path('.env.example').read_text(); p.write_text(t.replace('replace-with-a-random-secret',secrets.token_urlsafe(32)).replace('replace-with-an-independent-random-secret',secrets.token_urlsafe(32)).replace('replace-with-an-admin-password',secrets.token_urlsafe(24))) if not p.exists() else None"
         Check-Exit
+        Set-Location -LiteralPath $projectRoot
+        docker compose --profile search --profile obs up -d postgres redis minio etcd milvus searxng jaeger prometheus grafana
+        Check-Exit
+        docker build -f backend/deployments/sandbox.Dockerfile -t zhixing-sandbox:local backend
+        Check-Exit
+        Set-Location -LiteralPath (Join-Path $projectRoot 'backend')
         $ready = $false
         for ($attempt = 0; $attempt -lt 30; $attempt++) {
             docker compose -f (Join-Path $projectRoot 'compose.yaml') exec -T postgres pg_isready -U nexus
@@ -38,7 +39,7 @@ switch ($Action) {
         npm.cmd ci
         Check-Exit
         Write-Host 'Setup complete. Run start.ps1 up for all backend services, then start.ps1 web.'
-        Write-Host 'For a new installation, the admin password is NX_ADMIN_PASSWORD in backend/.env.'
+        Write-Host 'For a new installation, the admin password is ZHIXING_ADMIN_PASSWORD in backend/.env.'
     }
     'up' {
         Set-Location -LiteralPath $projectRoot
@@ -48,7 +49,7 @@ switch ($Action) {
         uv run --frozen python -m app.cli migrate
         Check-Exit
         Set-Location -LiteralPath $projectRoot
-        docker build -f backend/deployments/sandbox.Dockerfile -t nexus-python-sandbox:local backend
+        docker build -f backend/deployments/sandbox.Dockerfile -t zhixing-sandbox:local backend
         Check-Exit
         docker compose --profile app --profile search --profile obs up -d --build
         Check-Exit

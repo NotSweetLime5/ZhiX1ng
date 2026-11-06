@@ -1,0 +1,902 @@
+[
+  {
+    "repeat": 1,
+    "case_id": "q07",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q07",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q08",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q08",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q02",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q02",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q19",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q19",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q24",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q24",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q16",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q16",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q11",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q11",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q09",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q09",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q27",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q27",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q01",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q01",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q12",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q12",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q03",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q03",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q17",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q17",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q13",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q13",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q18",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q18",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q15",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q15",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q28",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q28",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q10",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q10",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q23",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q23",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q06",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q06",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q21",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q21",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q25",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q25",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q14",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q14",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q04",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q04",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q20",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q20",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q30",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q30",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q29",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q29",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q22",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q22",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q26",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q26",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q05",
+    "arm": "rag"
+  },
+  {
+    "repeat": 1,
+    "case_id": "q05",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q19",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q19",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q30",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q30",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q24",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q24",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q15",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q15",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q25",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q25",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q16",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q16",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q12",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q12",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q06",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q06",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q08",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q08",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q05",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q05",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q10",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q10",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q02",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q02",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q17",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q17",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q04",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q04",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q01",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q01",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q14",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q14",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q18",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q18",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q28",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q28",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q07",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q07",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q29",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q29",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q23",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q23",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q03",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q03",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q21",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q21",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q26",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q26",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q13",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q13",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q09",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q09",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q27",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q27",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q22",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q22",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q20",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q20",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q11",
+    "arm": "rag"
+  },
+  {
+    "repeat": 2,
+    "case_id": "q11",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q16",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q16",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q13",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q13",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q08",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q08",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q21",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q21",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q28",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q28",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q30",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q30",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q07",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q07",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q25",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q25",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q24",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q24",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q06",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q06",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q20",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q20",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q09",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q09",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q04",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q04",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q12",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q12",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q01",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q01",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q11",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q11",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q22",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q22",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q23",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q23",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q15",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q15",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q10",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q10",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q18",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q18",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q19",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q19",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q26",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q26",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q14",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q14",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q05",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q05",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q17",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q17",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q27",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q27",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q29",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q29",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q02",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q02",
+    "arm": "agentic"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q03",
+    "arm": "rag"
+  },
+  {
+    "repeat": 3,
+    "case_id": "q03",
+    "arm": "agentic"
+  }
+]

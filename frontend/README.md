@@ -13,7 +13,7 @@ npm test           # 流协议、会话隔离、上传/来源与 Agent 配置回
 ```
 
 Windows 可在项目目录使用 `start.ps1 setup`、`start.ps1 api`、`start.ps1 worker`；知识库处理需要 Worker 运行。
-后端地址可用环境变量覆盖：`NX_BACKEND_URL=http://other:8080 npm run dev`。
+后端地址可用环境变量覆盖：`ZHIXING_BACKEND_URL=http://other:8080 npm run dev`。
 
 ## 功能地图
 

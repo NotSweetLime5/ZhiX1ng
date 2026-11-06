@@ -247,7 +247,7 @@ class Tools:
                 for host in self.cfg.allowed_http_hosts
             )
             if url.scheme not in {"http", "https"} or not allowed or url.username or url.password:
-                raise ValueError("域名未列入 NX_ALLOWED_HTTP_HOSTS")
+                raise ValueError("域名未列入 ZHIXING_ALLOWED_HTTP_HOSTS")
             async with httpx.AsyncClient(timeout=15, follow_redirects=False) as client:
                 async with client.stream("GET", args["url"], headers=args.get("headers", {})) as res:
                     chunks = bytearray()

@@ -180,7 +180,7 @@ async def consume(rt, stop):
             if not delivery:
                 continue
             _, _, fields = delivery
-            # Go-format entries may exist before migration. Import them exactly once.
+            # Import compact document/run messages exactly once.
             if "job_id" not in fields:
                 await import_legacy(rt, queue, delivery)
                 continue

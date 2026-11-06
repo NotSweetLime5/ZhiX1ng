@@ -9,7 +9,7 @@ from app.core.config import Settings
 from app.services.tools import Tools
 
 pytestmark = pytest.mark.skipif(
-    os.getenv("NX_TEST_SANDBOX") != "1", reason="Set NX_TEST_SANDBOX=1 after building the sandbox image"
+    os.getenv("ZHIXING_TEST_SANDBOX") != "1", reason="Set ZHIXING_TEST_SANDBOX=1 after building the sandbox image"
 )
 
 

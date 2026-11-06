@@ -1,0 +1,16 @@
+{
+  "status": "cleaned",
+  "user_absent": true,
+  "kb_count": 1,
+  "before": {
+    "documents": 8,
+    "chunks": 439,
+    "sha256": "2bd9f8e1e789c9c0553ecb7ede7b1fd86c7d7ed57eebb42036f46ff8372700e5"
+  },
+  "after": {
+    "documents": 8,
+    "chunks": 439,
+    "sha256": "2bd9f8e1e789c9c0553ecb7ede7b1fd86c7d7ed57eebb42036f46ff8372700e5"
+  },
+  "user_data_unchanged": true
+}

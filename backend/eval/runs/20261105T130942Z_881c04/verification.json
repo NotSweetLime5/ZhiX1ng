@@ -1,0 +1,61 @@
+{
+  "recorded": 180,
+  "unique_responses": 180,
+  "unique_judgments": 180,
+  "response_judgment_ids_identical": true,
+  "source_snapshot_hashes": {
+    "app/evaluation/benchmark.py": true,
+    "app/evaluation/scoring.py": true,
+    "app/agents/runtime.py": true,
+    "app/services/llm.py": true,
+    "app/services/rag.py": true,
+    "app/infrastructure/vector_store.py": true,
+    "uv.lock": true
+  },
+  "dataset_hashes": {
+    "eval/agentic_rag_v1/cases.jsonl": true,
+    "eval/agentic_rag_v1/documents/D01_service.md": true,
+    "eval/agentic_rag_v1/documents/D02_billing.md": true,
+    "eval/agentic_rag_v1/documents/D03_customers.md": true,
+    "eval/agentic_rag_v1/documents/D04_retention_legacy.md": true,
+    "eval/agentic_rag_v1/documents/D05_retention_current.md": true,
+    "eval/agentic_rag_v1/documents/D06_backup.md": true,
+    "eval/agentic_rag_v1/documents/D07_routing.md": true,
+    "eval/agentic_rag_v1/documents/D08_roster.md": true,
+    "eval/agentic_rag_v1/documents/D09_incidents.md": true,
+    "eval/agentic_rag_v1/documents/D10_export.md": true,
+    "eval/agentic_rag_v1/documents/D11_migration.md": true,
+    "eval/agentic_rag_v1/documents/D12_untrusted_ticket.md": true
+  },
+  "resume_did_not_repeat_saved_invocations": {
+    "responses.jsonl": true,
+    "judgments.jsonl": true,
+    "embedding_calls.jsonl": true
+  },
+  "observed_answer_models": [
+    "deepseek-flash"
+  ],
+  "model_calls_started": 196,
+  "model_calls_completed": 196,
+  "judge_calls_completed": 180,
+  "cleanup_initial": true,
+  "validation_tests": "9 passed; Ruff passed",
+  "initial_evidence_including_score_equal": 89,
+  "initial_evidence_content_and_order_equal": 90,
+  "retrieval_score_differences": [
+    {
+      "repeat": 3,
+      "case_id": "q10",
+      "source": "D03",
+      "rag_score": 0.0320020467042923,
+      "agentic_score": 0.032258063554763794
+    },
+    {
+      "repeat": 3,
+      "case_id": "q10",
+      "source": "D09",
+      "rag_score": 0.0320020467042923,
+      "agentic_score": 0.0317460335791111
+    }
+  ]
+}

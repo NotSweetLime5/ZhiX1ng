@@ -1,4 +1,4 @@
-"""Restore sandbox execution audit records from the original Go implementation."""
+"""Create the sandbox execution audit table."""
 
 from alembic import op
 

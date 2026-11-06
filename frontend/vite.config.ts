@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 // FastAPI 后端默认监听 8080。
-const BACKEND = process.env.NX_BACKEND_URL ?? 'http://localhost:8080';
+const BACKEND = process.env.ZHIXING_BACKEND_URL ?? 'http://localhost:8080';
 
 export default defineConfig({
   plugins: [react()],

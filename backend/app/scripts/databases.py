@@ -11,7 +11,7 @@ from sqlalchemy.engine import make_url
 async def create_databases(cfg):
     url = make_url(cfg.database_url)
     if not url.database:
-        raise ValueError("NX_DATABASE_URL 必须指定数据库名称")
+        raise ValueError("ZHIXING_DATABASE_URL 必须指定数据库名称")
 
     def postgres():
         admin_url = url.set(drivername="postgresql", database="postgres")

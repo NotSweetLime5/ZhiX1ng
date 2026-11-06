@@ -43,12 +43,12 @@ def test_changing_defaults_preserves_existing_secrets(tmp_path):
     config = tmp_path / "config.txt"
     config.write_text(config_text())
     env = tmp_path / ".env"
-    env.write_text("NX_JWT_SECRET=existing-jwt\nNX_SECRET_KEY=existing-encryption\nNX_DEFAULT_CHAT=old\n")
+    env.write_text("ZHIXING_JWT_SECRET=existing-jwt\nZHIXING_SECRET_KEY=existing-encryption\nZHIXING_DEFAULT_CHAT=old\n")
     save_default_aliases(read_config(config), env)
     saved = env.read_text()
-    assert "NX_JWT_SECRET=existing-jwt" in saved and "NX_SECRET_KEY=existing-encryption" in saved
-    assert "NX_DEFAULT_CHAT=deepseek-flash" in saved
-    assert "NX_DEFAULT_EMBEDDING=Qwen/Qwen3-Embedding-4B" in saved
+    assert "ZHIXING_JWT_SECRET=existing-jwt" in saved and "ZHIXING_SECRET_KEY=existing-encryption" in saved
+    assert "ZHIXING_DEFAULT_CHAT=deepseek-flash" in saved
+    assert "ZHIXING_DEFAULT_EMBEDDING=Qwen/Qwen3-Embedding-4B" in saved
     assert "unit-secret" not in saved
 
 

@@ -1,4 +1,4 @@
-"""Python schema; initialize a separate database from the legacy Go schema."""
+"""Initialize the application schema without overwriting incompatible tables."""
 
 from alembic import op
 from sqlalchemy import inspect
@@ -15,11 +15,11 @@ def upgrade():
     connection = op.get_bind()
     inspector = inspect(connection)
     tables = set(inspector.get_table_names())
-    legacy_agents = "agents" in tables and "creator_id" not in {
+    incompatible_agents = "agents" in tables and "creator_id" not in {
         column["name"] for column in inspector.get_columns("agents")
     }
-    if "schema_migrations" in tables or legacy_agents:
-        raise RuntimeError("检测到原版 Go 数据库，请为 Python 配置独立数据库；本次未转换旧表结构")
+    if "schema_migrations" in tables or incompatible_agents:
+        raise RuntimeError("检测到不兼容的数据库结构，请配置独立数据库；本次未更改已有表")
     metadata.create_all(connection)
 
 

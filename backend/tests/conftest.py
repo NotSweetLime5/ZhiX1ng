@@ -44,16 +44,16 @@ def isolated_services(tmp_path_factory):
     namespace = "nx_test_" + suffix
     bucket = "nx-test-" + suffix
     overrides = {
-        "NX_DATABASE_URL": make_url(cfg.database_url)
+        "ZHIXING_DATABASE_URL": make_url(cfg.database_url)
         .set(database=database)
         .render_as_string(hide_password=False),
-        "NX_MILVUS_NAMESPACE": namespace,
-        "NX_MINIO_BUCKET": bucket,
-        "NX_FILE_ROOT": str(tmp_path_factory.mktemp("tool-files")),
-        "NX_ADMIN_PASSWORD": uuid.uuid4().hex,
-        "NX_REDIS_NAMESPACE": namespace,
-        "NX_JWT_SECRET": uuid.uuid4().hex,
-        "NX_SECRET_KEY": uuid.uuid4().hex,
+        "ZHIXING_MILVUS_NAMESPACE": namespace,
+        "ZHIXING_MINIO_BUCKET": bucket,
+        "ZHIXING_FILE_ROOT": str(tmp_path_factory.mktemp("tool-files")),
+        "ZHIXING_ADMIN_PASSWORD": uuid.uuid4().hex,
+        "ZHIXING_REDIS_NAMESPACE": namespace,
+        "ZHIXING_JWT_SECRET": uuid.uuid4().hex,
+        "ZHIXING_SECRET_KEY": uuid.uuid4().hex,
     }
     original = {key: os.environ.get(key) for key in overrides}
     with psycopg.connect(cfg.checkpoint_url, autocommit=True) as admin:

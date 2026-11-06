@@ -106,7 +106,7 @@ async def send_a2a(rt, user, ident, body):
                     "message": {
                         "messageId": str(uuid.uuid4()),
                         "role": "user",
-                        # The upstream Go subset reads `type`; A2A 0.3 reads `kind`.
+                        # Accept peers using either discriminator spelling.
                         "parts": [{"kind": "text", "type": "text", "text": body["text"]}],
                     }
                 },

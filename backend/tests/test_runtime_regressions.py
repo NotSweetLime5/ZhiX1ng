@@ -1,4 +1,4 @@
-"""Regressions derived from reachable behavior in upstream commit 5c7b81e."""
+"""SDK, workflow, CLI and runtime regression coverage."""
 
 import hashlib
 import json
@@ -89,8 +89,8 @@ async def test_compatible_sdk_preserves_reasoning_for_stream_and_tool_round_trip
         assert requests[-1]["messages"][1]["reasoning_content"] == "nonstream-reason"
 
 
-def test_pinned_upstream_routes_are_implemented():
-    snapshot = json.loads((Path(__file__).parent / "fixtures" / "upstream_routes.json").read_text())
+def test_required_routes_are_implemented():
+    snapshot = json.loads((Path(__file__).parent / "fixtures" / "api_routes.json").read_text())
 
     def normalize(path):
         return re.sub(r":[A-Za-z_][A-Za-z_0-9]*|\{[^}]+\}", "{}", path)
@@ -100,7 +100,7 @@ def test_pinned_upstream_routes_are_implemented():
         for path, operations in app.openapi()["paths"].items()
         for method in operations
     }
-    expected = {(row["method"], normalize(row["path"])) for row in snapshot["routes"]}
+    expected = {(row["method"], normalize(row["path"])) for row in snapshot}
     assert expected <= actual, expected - actual
 
 
@@ -266,7 +266,7 @@ def test_yaml_boolean_condition_literal_is_accepted(value):
 
 
 async def test_go_yaml_yes_no_node_names_remain_strings(rt):
-    dsl = """name: go-yaml-keys
+    dsl = """name: workflow-yaml-keys
 nodes:
   - {key: check, type: condition, expr: true, then: yes, else: no}
   - {key: yes, type: tool, tool_code: calculator, args: {expression: '2+3'}}
@@ -275,7 +275,7 @@ edges: [{from: check, to: yes}]
 out: yes
 """
     workflow = await rt.db.add(
-        t.workflows, {"name": "go-yaml-keys", "creator_id": rt.test_user["id"], "dsl": dsl}
+        t.workflows, {"name": "workflow-yaml-keys", "creator_id": rt.test_user["id"], "dsl": dsl}
     )
     run = await rt.workflow.run(workflow, rt.test_user, {})
     assert run["status"] == "succeeded" and run["output"]["result"] == "5"
@@ -325,7 +325,7 @@ async def test_file_save_returns_path_and_utf8_byte_count(rt):
     )
 
 
-@pytest.mark.skipif(os.getenv("NX_TEST_SANDBOX") != "1", reason="Enable live Docker sandbox checks")
+@pytest.mark.skipif(os.getenv("ZHIXING_TEST_SANDBOX") != "1", reason="Enable live Docker sandbox checks")
 async def test_code_execution_preserves_separate_streams_and_hash_only_audit(rt):
     code = "import sys\nprint('audit-out')\nprint('audit-err', file=sys.stderr)\nsys.exit(7)"
     result = json.loads(

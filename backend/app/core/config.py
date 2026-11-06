@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="NX_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="ZHIXING_", env_file=".env", extra="ignore")
     env: str = "dev"
     database_url: str = "postgresql+asyncpg://nexus:nexus123@127.0.0.1:5439/zhixing_python"
     redis_url: str = "redis://127.0.0.1:6383/0"
@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     minio_endpoint: str = "127.0.0.1:9003"
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
-    minio_bucket: str = "nexus-docs"
+    minio_bucket: str = "zhixing-python-docs"
     minio_secure: bool = False
     jwt_secret: str = "nexus-local-jwt-change-before-deployment"
     secret_key: str = "nexus-local-encryption-change-before-deployment"
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     searxng_url: str = "http://127.0.0.1:8083/search"
     allowed_http_hosts: list[str] = []
     sandbox_enabled: bool = False
-    sandbox_image: str = "nexus-python-sandbox:local"
+    sandbox_image: str = "zhixing-sandbox:local"
     file_root: str = "./data/files"
     step_timeout: int = 60
     run_timeout: int = 300
@@ -67,9 +67,9 @@ class Settings(BaseSettings):
                 "change-me-32-bytes!!",
             }
             if any(len(secret) < 32 or secret in defaults for secret in (self.jwt_secret, self.secret_key)):
-                raise ValueError("生产环境的 NX_JWT_SECRET 和 NX_SECRET_KEY 必须为至少32字符的独立密钥")
+                raise ValueError("生产环境的 ZHIXING_JWT_SECRET 和 ZHIXING_SECRET_KEY 必须为至少32字符的独立密钥")
             if self.jwt_secret == self.secret_key:
-                raise ValueError("NX_JWT_SECRET 和 NX_SECRET_KEY 不能相同")
+                raise ValueError("ZHIXING_JWT_SECRET 和 ZHIXING_SECRET_KEY 不能相同")
         return self
 
     @property

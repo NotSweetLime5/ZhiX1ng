@@ -15,7 +15,7 @@ from app.core.observability import operation, record_usage
 
 
 class CompatibleChatOpenAI(ChatOpenAI):
-    """Retain the reasoning_content extension used by the original Go adapter.
+    """Preserve the reasoning_content extension of compatible model providers.
 
     Generic ChatOpenAI deliberately drops provider-specific fields. Preserve the
     field on both incoming responses and the next assistant/tool request so an

@@ -1,5 +1,5 @@
-# Existing deployment identity retains the volumes holding Zhixing's indexed documents.
-name: nexus-agent-python
+# Physical volumes can be bound explicitly through the local .env file.
+name: zhixing
 services:
   postgres:
     image: postgres:16-alpine
@@ -52,13 +52,13 @@ services:
     volumes: ["/var/run/docker.sock:/var/run/docker.sock", "./backend/data/files:/app/data/files"]
     env_file: [./backend/.env]
     environment: &app-env
-      NX_DATABASE_URL: postgresql+asyncpg://nexus:nexus123@postgres:5432/zhixing_python
-      NX_REDIS_URL: redis://redis:6379/0
-      NX_MILVUS_URI: http://milvus:19530
-      NX_MILVUS_DATABASE: zhixing_python
-      NX_MINIO_ENDPOINT: minio:9000
-      NX_SEARXNG_URL: http://searxng:8080/search
-      NX_OTEL_ENDPOINT: http://jaeger:4318
+      ZHIXING_DATABASE_URL: postgresql+asyncpg://nexus:nexus123@postgres:5432/zhixing_python
+      ZHIXING_REDIS_URL: redis://redis:6379/0
+      ZHIXING_MILVUS_URI: http://milvus:19530
+      ZHIXING_MILVUS_DATABASE: zhixing_python
+      ZHIXING_MINIO_ENDPOINT: minio:9000
+      ZHIXING_SEARXNG_URL: http://searxng:8080/search
+      ZHIXING_OTEL_ENDPOINT: http://jaeger:4318
       NO_PROXY: localhost,127.0.0.1,postgres,redis,milvus,minio,searxng,jaeger,mcp,a2a
     depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_started}, milvus: {condition: service_started}}
   worker:
@@ -110,9 +110,21 @@ services:
     volumes: ["grafanadata:/var/lib/grafana", "./backend/deployments/grafana/provisioning:/etc/grafana/provisioning:ro"]
 volumes:
   pgdata:
+    name: ${ZHIXING_PGDATA_VOLUME:-zhixing_pgdata}
+    external: ${ZHIXING_EXTERNAL_VOLUMES:-false}
   redisdata:
+    name: ${ZHIXING_REDISDATA_VOLUME:-zhixing_redisdata}
+    external: ${ZHIXING_EXTERNAL_VOLUMES:-false}
   objects:
+    name: ${ZHIXING_OBJECTS_VOLUME:-zhixing_objects}
+    external: ${ZHIXING_EXTERNAL_VOLUMES:-false}
   etcddata:
+    name: ${ZHIXING_ETCDDATA_VOLUME:-zhixing_etcddata}
+    external: ${ZHIXING_EXTERNAL_VOLUMES:-false}
   milvusdata:
+    name: ${ZHIXING_MILVUSDATA_VOLUME:-zhixing_milvusdata}
+    external: ${ZHIXING_EXTERNAL_VOLUMES:-false}
   ollamadata:
   grafanadata:
+    name: ${ZHIXING_GRAFANADATA_VOLUME:-zhixing_grafanadata}
+    external: ${ZHIXING_EXTERNAL_VOLUMES:-false}

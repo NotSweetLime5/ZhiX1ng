@@ -39,7 +39,7 @@ class TaskQueue:
         self.next_stream = 0
 
     def key(self, name):
-        # Keep original Go stream/group names locally; isolate tests and other deployments.
+        # Keep default stream/group keys stable; isolate tests and other deployments.
         return name if self.rt.cfg.redis_namespace == "nx" else self.rt.cfg.redis_namespace + ":" + name
 
     def stream(self, kind):

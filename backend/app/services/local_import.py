@@ -88,8 +88,8 @@ async def configure_models(rt, specs):
 
 def save_default_aliases(specs, env_path=Path(".env")):
     defaults = {
-        "NX_DEFAULT_CHAT": next(s.model_name for s in specs if s.code == "deepseek"),
-        "NX_DEFAULT_EMBEDDING": next(s.model_name for s in specs if s.kind == "embedding"),
+        "ZHIXING_DEFAULT_CHAT": next(s.model_name for s in specs if s.code == "deepseek"),
+        "ZHIXING_DEFAULT_EMBEDDING": next(s.model_name for s in specs if s.kind == "embedding"),
     }
     lines = env_path.read_text(encoding="utf-8").splitlines() if env_path.exists() else []
     updated = []

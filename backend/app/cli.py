@@ -24,7 +24,7 @@ async def conversation(args):
     username = args.user or await asyncio.to_thread(input, "用户名> ")
     password = (
         args.password
-        or os.environ.get("NX_CLI_PASSWORD")
+        or os.environ.get("ZHIXING_CLI_PASSWORD")
         or await asyncio.to_thread(getpass.getpass, "密码> ")
     )
     async with httpx.AsyncClient(base_url=args.addr.rstrip("/"), timeout=None) as http:

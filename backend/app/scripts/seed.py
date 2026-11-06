@@ -13,7 +13,7 @@ from app.services.tools import BUILTINS
 def bootstrap_password(cfg):
     password = cfg.admin_password or secrets.token_urlsafe(24)
     if len(password) < 16 or password.startswith("replace-with-"):
-        raise ValueError("首次初始化需要至少16字符的 NX_ADMIN_PASSWORD；留空则自动生成")
+        raise ValueError("首次初始化需要至少16字符的 ZHIXING_ADMIN_PASSWORD；留空则自动生成")
     return password, not bool(cfg.admin_password)
 
 

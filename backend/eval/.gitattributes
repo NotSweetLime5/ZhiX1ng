@@ -1,0 +1,2 @@
+# Source snapshots must retain the exact bytes used for recorded SHA-256 hashes.
+runs/**/source_snapshot/** -text

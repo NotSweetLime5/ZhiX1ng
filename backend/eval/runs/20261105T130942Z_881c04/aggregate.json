@@ -1,0 +1,200 @@
+{
+  "scheduled": 180,
+  "recorded": 180,
+  "status": "complete",
+  "arms": {
+    "rag": {
+      "total": 90,
+      "passed": 80,
+      "scheduled": 90,
+      "pass_rate": 0.8888888888888888,
+      "response_errors": 0,
+      "judge_errors": 0,
+      "missing_model_usage_samples": 0,
+      "citation_invalid_samples": 0,
+      "latency_ms": {
+        "observed": 90,
+        "p50": 3283.12,
+        "p95": 8182.46,
+        "mean": 4077.682,
+        "sum": 366991.35
+      },
+      "first_answer_token_ms": {
+        "observed": 90,
+        "p50": 3098.39,
+        "p95": 7550.32,
+        "mean": 3711.765,
+        "sum": 334058.87
+      },
+      "input_tokens": {
+        "observed": 90,
+        "p50": 936,
+        "p95": 989,
+        "mean": 941.833,
+        "sum": 84765
+      },
+      "output_tokens": {
+        "observed": 90,
+        "p50": 289,
+        "p95": 799,
+        "mean": 343.133,
+        "sum": 30882
+      },
+      "model_calls_completed": 90,
+      "additional_searches": 0,
+      "mean_expected_source_coverage": 0.967,
+      "by_category": {
+        "lookup": {
+          "total": 18,
+          "passed": 18
+        },
+        "multihop": {
+          "total": 24,
+          "passed": 21
+        },
+        "numeric": {
+          "total": 18,
+          "passed": 14
+        },
+        "security": {
+          "total": 9,
+          "passed": 6
+        },
+        "temporal": {
+          "total": 12,
+          "passed": 12
+        },
+        "unanswerable": {
+          "total": 9,
+          "passed": 9
+        }
+      },
+      "by_repeat": {
+        "1": {
+          "total": 30,
+          "passed": 27
+        },
+        "2": {
+          "total": 30,
+          "passed": 26
+        },
+        "3": {
+          "total": 30,
+          "passed": 27
+        }
+      }
+    },
+    "agentic": {
+      "total": 90,
+      "passed": 87,
+      "scheduled": 90,
+      "pass_rate": 0.9666666666666667,
+      "response_errors": 0,
+      "judge_errors": 0,
+      "missing_model_usage_samples": 0,
+      "citation_invalid_samples": 0,
+      "latency_ms": {
+        "observed": 90,
+        "p50": 3253.37,
+        "p95": 12414.92,
+        "mean": 4465.231,
+        "sum": 401870.79
+      },
+      "first_answer_token_ms": {
+        "observed": 90,
+        "p50": 2782.91,
+        "p95": 11620.0,
+        "mean": 3944.072,
+        "sum": 354966.48
+      },
+      "input_tokens": {
+        "observed": 90,
+        "p50": 1267,
+        "p95": 4082,
+        "mean": 1697.922,
+        "sum": 152813
+      },
+      "output_tokens": {
+        "observed": 90,
+        "p50": 271,
+        "p95": 665,
+        "mean": 300.278,
+        "sum": 27025
+      },
+      "model_calls_completed": 106,
+      "additional_searches": 22,
+      "mean_expected_source_coverage": 0.996,
+      "by_category": {
+        "lookup": {
+          "total": 18,
+          "passed": 18
+        },
+        "multihop": {
+          "total": 24,
+          "passed": 23
+        },
+        "numeric": {
+          "total": 18,
+          "passed": 17
+        },
+        "security": {
+          "total": 9,
+          "passed": 9
+        },
+        "temporal": {
+          "total": 12,
+          "passed": 11
+        },
+        "unanswerable": {
+          "total": 9,
+          "passed": 9
+        }
+      },
+      "by_repeat": {
+        "1": {
+          "total": 30,
+          "passed": 29
+        },
+        "2": {
+          "total": 30,
+          "passed": 28
+        },
+        "3": {
+          "total": 30,
+          "passed": 30
+        }
+      }
+    }
+  },
+  "paired": {
+    "both_pass": 78,
+    "agentic_only": 9,
+    "rag_only": 2,
+    "both_fail": 1
+  },
+  "judge_usage": {
+    "input_tokens": {
+      "observed": 180,
+      "p50": 3147,
+      "p95": 3496,
+      "mean": 3183.294,
+      "sum": 572993
+    },
+    "output_tokens": {
+      "observed": 180,
+      "p50": 239,
+      "p95": 1406,
+      "mean": 383.533,
+      "sum": 69036
+    }
+  },
+  "initial_evidence_comparison": {
+    "same": 90
+  },
+  "embedding_calls": {
+    "logical_invocations": 214,
+    "failures": 0,
+    "tokens": null,
+    "note": "Embedding SDK does not expose token usage; HTTP retries not separately counted"
+  }
+}

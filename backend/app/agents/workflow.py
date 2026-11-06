@@ -18,7 +18,7 @@ class Rejected(Exception):
 
 
 class WorkflowLoader(yaml.SafeLoader):
-    """Keep ordinary Go YAML identifiers such as yes/no/on/off as strings."""
+    """Keep YAML identifiers such as yes/no/on/off as strings."""
 
 
 WorkflowLoader.yaml_implicit_resolvers = {

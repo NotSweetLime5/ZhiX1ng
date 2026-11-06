@@ -34,7 +34,7 @@ def create_server(host="127.0.0.1", port=None):
 
     @server.tool()
     async def fetch_page(url: str) -> dict:
-        """Read a public page whose domain is permitted by NX_ALLOWED_HTTP_HOSTS."""
+        """Read a public page whose domain is permitted by ZHIXING_ALLOWED_HTTP_HOSTS."""
         return await tools.invoke("http_client", {"url": url}, {})
 
     return server

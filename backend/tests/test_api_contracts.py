@@ -1,4 +1,4 @@
-"""Keep the retired backend's public HTTP and A2A entrypoints available in FastAPI."""
+"""Public HTTP, health and A2A protocol contracts."""
 
 import json
 import re
@@ -11,16 +11,16 @@ from app import models as t
 from app.main import app
 
 
-def test_legacy_http_routes_are_available_in_fastapi():
-    # Snapshot of the Go router before removal, including health, metrics and A2A.
-    legacy = json.loads((Path(__file__).parent / "fixtures" / "legacy_api_routes.json").read_text())
+def test_public_http_routes_are_available_in_fastapi():
+    # Required API routes, including health, metrics and A2A.
+    legacy = json.loads((Path(__file__).parent / "fixtures" / "api_routes.json").read_text())
     actual = {
         (method.upper(), re.sub(r"\{[^}]+\}", "{}", path))
         for path, methods in app.openapi()["paths"].items()
         for method in methods
     }
     missing = {(route["method"], route["path"]) for route in legacy} - actual
-    assert not missing, f"Missing legacy HTTP routes: {sorted(missing)}"
+    assert not missing, f"Missing required HTTP routes: {sorted(missing)}"
 
 
 async def test_python_health_metrics_and_agent_card(client):
@@ -35,7 +35,7 @@ async def test_python_health_metrics_and_agent_card(client):
     assert card.json() == (await client.get("/.well-known/agent-card.json")).json()
 
 
-async def test_a2a_ping_keeps_legacy_health_probe(client):
+async def test_a2a_ping_returns_health_status(client):
     response = await client.post("/a2a", json={"jsonrpc": "2.0", "id": "probe", "method": "message/ping"})
     assert response.status_code == 200
     body = response.json()
